@@ -54,29 +54,23 @@ void parseTXTFile(string filename)
     myFile.close();
 }
 
-void auxFunc(Trie* t, int i1, int i2, int i3, int i4, int i5, int i6) {
+void auxFunc(Trie* t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8) {
     vector<bool> v;
     v.clear();
     v.push_back(i1);
     v.push_back(i2);
-    v.push_back(i3);
-    v.push_back(i4);
-    v.push_back(i5);
-    v.push_back(i6);
-    t->AddVector(&v);  
+    //v.push_back(i3);
+    //v.push_back(i4);
+    //v.push_back(i5);
+    //v.push_back(i6);
+    //v.push_back(i7);
+    //v.push_back(i8);
+    t->AddVector(&v);
+  
 }
 
 int main()
 {
-    //uint wt = mybasics::bits(5);
-    /*
-    uint wt = 0;
-    bitset(&wt, 129);
-    uint value = bitget(&wt, 129);
-    cout << value << endl;
-    */
-    //mybasics::bitwrite(wt, 0, 5, 0);
-
     ofstream outputFile;
     outputFile.open("Test/log_SanMarino.txt");
     parseTXTFile("Test/SanMarino.txt");
@@ -89,17 +83,20 @@ int main()
    
     Trie tTrie;
 
-    auxFunc(&tTrie, 0, 0, 1, 0, 1, 0); 
-    auxFunc(&tTrie, 0, 0, 1, 1, 0, 1);
-    auxFunc(&tTrie, 0, 0, 1, 1, 1, 0);
-    auxFunc(&tTrie, 0, 0, 1, 1, 1, 1);
-    auxFunc(&tTrie, 0, 1, 1, 0, 1, 1);
-    auxFunc(&tTrie, 1, 1, 0, 1, 0, 1); 
-    auxFunc(&tTrie, 1, 1, 1, 0, 1, 0);
-    auxFunc(&tTrie, 1, 1, 1, 1, 0, 1);
+    auxFunc(&tTrie, 0, 0, 1, 0, 1, 0, 0, 1); 
+    auxFunc(&tTrie, 0, 0, 1, 1, 0, 1, 0, 1);
+    auxFunc(&tTrie, 0, 0, 1, 1, 1, 0, 0, 1);
+    auxFunc(&tTrie, 0, 0, 1, 1, 1, 1, 0, 1);
+    auxFunc(&tTrie, 0, 1, 1, 0, 1, 1, 0, 1);
+    auxFunc(&tTrie, 1, 1, 0, 1, 0, 1, 0, 1); 
+    auxFunc(&tTrie, 1, 1, 1, 0, 1, 0, 0, 1);
+    auxFunc(&tTrie, 1, 1, 1, 1, 0, 1, 0, 1);
     
     tTrie.CalculateNumberOfLeafsOfEachNode();
     tTrie.BuildPathDecomposition();
+    
+    tTrie.getPathBitmap()->PrintBitmap();
+    tTrie.getPathBitmap()->XOR(0, 0);
   
     outputFile.close();
     

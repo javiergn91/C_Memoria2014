@@ -1,4 +1,9 @@
+#include "basics.h"
 #include "utils.h"
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
 
 unsigned long long Utils::GetDecimalRepresentation(vector<int>* binaryRepresentation)
 {
@@ -15,15 +20,37 @@ unsigned long long Utils::GetDecimalRepresentation(vector<int>* binaryRepresenta
     return sum;
 }
 
-int Utils::GetBytesRequired(int n)
+unsigned int Utils::GetBytesRequired(unsigned int n)
 {
-    int wordSize = 32;
-    int bytesRequired = n / wordSize;
+    //int wordSize = 32;
+    unsigned int bytesRequired = n / W;
 
-    if(n % wordSize != 0)
+    if(n % W != 0)
     {
         bytesRequired++;
     }
 
     return bytesRequired;
+}
+
+void Utils::PrintBinary(unsigned int decimalNumber, bool bNormal)
+{
+  if(decimalNumber == 0)
+  {
+    cout << 0 << endl;
+    return;
+  }
+  
+  vector<int> v;
+  while(decimalNumber)
+  {
+   v.push_back(decimalNumber % 2);
+   decimalNumber /= 2;
+  }
+  reverse(v.begin(), v.end());
+  for(int i = 0; i < v.size(); i++) 
+  {
+   cout << v[i]; 
+  }
+  cout << endl;
 }

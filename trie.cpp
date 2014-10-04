@@ -13,9 +13,9 @@ using namespace std;
 Trie::Trie()
 {
     root = new TrieNode();
-    paths = NULL;
-    pathLens = NULL;
-    pathNexts = NULL;
+    pathBitmap = NULL;
+    pathLenBitmap = NULL;
+    pathNextBitmap = NULL;
 
     numNodes = 1;
 }
@@ -77,6 +77,10 @@ void Trie::BuildPathDecomposition()
     vector<bool> pathsAux;
     vector<bool> pathLensAux;
     vector<bool> pathNextsAux;
+    
+    uint* paths = NULL;
+    uint* pathLens = NULL;
+    uint* pathNexts = NULL;
 
     int totalSize = 0;
 
@@ -131,7 +135,7 @@ void Trie::BuildPathDecomposition()
       pathLensAux[totalSize - 1] = ONE;
     }
     
-    int bytesRequired = Utils::GetBytesRequired(pathsAux.size());
+    unsigned int bytesRequired = Utils::GetBytesRequired((unsigned int)pathsAux.size());
 
     paths = (uint*)malloc(bytesRequired);
     pathLens = (uint*)malloc(bytesRequired);
@@ -141,34 +145,33 @@ void Trie::BuildPathDecomposition()
     mybasics::bitzero(pathLens, 0, pathLensAux.size());
     mybasics::bitzero(pathNexts, 0, pathNextsAux.size());
 
-    for(int i = 0; i < pathsAux.size(); i++)
+    for(int i = 0; i < (int)pathsAux.size(); i++)
     {
-      if(pathsAux[i] == ONE) {
+      if(pathsAux[i] == ONE) 
+      {
 	bitset(paths, i);
       }
-
-      cout << bitget(paths, i);
     }
-    cout << endl;
     
-    for(int i = 0; i < pathLensAux.size(); i++) {
-      if(pathLensAux[i] == ONE) {
+    for(int i = 0; i < (int)pathLensAux.size(); i++) 
+    {
+      if(pathLensAux[i] == ONE) 
+      {
 	bitset(pathLens, i);
       }
-
-      cout << bitget(pathLens, i);
     }
-    cout << endl;
     
-    for(int i = 0; i < pathNextsAux.size(); i++)
+    for(int i = 0; i < (int)pathNextsAux.size(); i++)
     {
-      if(pathNextsAux[i] == ONE) {
+      if(pathNextsAux[i] == ONE) 
+      {
 	bitset(pathNexts, i);
       }
-      
-        cout << bitget(pathNexts, i);
     }
-    cout << endl;
+    
+    pathBitmap = new SPBitmap(paths, pathsAux.size());
+    pathLenBitmap = new SPBitmap(pathLens, pathLensAux.size());
+    pathNextBitmap = new SPBitmap(pathNexts, pathNextsAux.size());
 }
 
 void Trie::CreateSubtree(vector<bool>* v, int startIndex, TrieNode* currNode)

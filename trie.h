@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <vector>
+#include "spbitmap.h"
 using namespace std;
 
 class TrieNode
@@ -41,6 +42,9 @@ public:
     bool IsInTrie(vector<bool>* v);
     bool IsLeaf(TrieNode* node);
     int getSize() { return numNodes; };
+    SPBitmap* getPathBitmap() { return pathBitmap; }
+    SPBitmap* getPathLenBitmap() { return pathLenBitmap; }
+    SPBitmap* getPathNextBitmap() { return pathNextBitmap; }
 
 private:
     TrieNode* root;
@@ -53,9 +57,9 @@ private:
     int numNodes;
 
     //Build Path Decomposition bitmaps (NULL if BuildPathDecomposition() method is not executed first)
-    uint* paths;
-    uint* pathLens;
-    uint* pathNexts;
+    SPBitmap* pathBitmap;
+    SPBitmap* pathLenBitmap;
+    SPBitmap* pathNextBitmap;
 };
 
 #endif // _TRIE_H
