@@ -1,3 +1,6 @@
+LIBCDSDIR=libcds-master
+LIBCDS=$(LIBCDSDIR)/src/.libs/libcds.a
+INCLUDES=-I$(LIBCDSDIR)/include/
 CC=g++
 CFLAGS=-c 
 LDFLAGS=
@@ -8,8 +11,8 @@ EXECUTABLE=memoria
 all: $(SOURCES) $(EXECUTABLE)
 	
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(LDFLAGS) $(INCLUDES) $(OBJECTS) -o $@ $(LIBCDS)
 
 .cpp.o:
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBCDS)
 

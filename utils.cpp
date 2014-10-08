@@ -33,6 +33,21 @@ unsigned int Utils::GetBytesRequired(unsigned int n)
     return bytesRequired;
 }
 
+unsigned int* Utils::CreateBitSequence(string str)
+{
+    uint* word = (uint*)malloc(sizeof(uint));
+    mybasics::bitzero(word, 0, str.size());
+    
+    for(int i = 0; i < str.size(); i++) 
+    {
+      if(str[i] == '1')
+      {
+	bitset(word, i);
+      }
+    }
+    return word;
+}
+
 void Utils::PrintBinary(unsigned int decimalNumber, bool bNormal)
 {
   if(decimalNumber == 0)

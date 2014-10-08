@@ -3,7 +3,6 @@
 #include <iostream>
 #include <math.h>
 #include <queue>
-#include "basics.h"
 #include "utils.h"
 using namespace std;
 
@@ -135,21 +134,32 @@ void Trie::BuildPathDecomposition()
       pathLensAux[totalSize - 1] = ONE;
     }
     
-    unsigned int bytesRequired = Utils::GetBytesRequired((unsigned int)pathsAux.size());
+    //unsigned int bytesRequired = Utils::GetBytesRequired((unsigned int)pathsAux.size());
 
-    paths = (uint*)malloc(bytesRequired);
-    pathLens = (uint*)malloc(bytesRequired);
-    pathNexts = (uint*)malloc(bytesRequired);
+    //cout << bytesRequired << endl;
+    
+    paths = new uint[uint_len(pathsAux.size(),1)];
+    pathLens = new uint[uint_len(pathsAux.size(),1)];
+    pathNexts = new uint[uint_len(pathsAux.size(),1)];
+    
+    //paths = (uint*)malloc(bytesRequired);
+    //pathLens = (uint*)malloc(bytesRequired);
+    //pathNexts = (uint*)malloc(bytesRequired);
 
-    mybasics::bitzero(paths, 0, pathsAux.size());
-    mybasics::bitzero(pathLens, 0, pathLensAux.size());
-    mybasics::bitzero(pathNexts, 0, pathNextsAux.size());
+    //mybasics::bitzero(paths, 0, pathsAux.size());
+    //mybasics::bitzero(pathLens, 0, pathLensAux.size());
+    //mybasics::bitzero(pathNexts, 0, pathNextsAux.size());
 
     for(int i = 0; i < (int)pathsAux.size(); i++)
     {
       if(pathsAux[i] == ONE) 
       {
 	bitset(paths, i);
+	//bitset(paths, i);
+      }
+      else
+      {
+	bitclean(paths, i);
       }
     }
     
@@ -159,6 +169,10 @@ void Trie::BuildPathDecomposition()
       {
 	bitset(pathLens, i);
       }
+      else
+      {
+	bitclean(pathLens, i);
+      }
     }
     
     for(int i = 0; i < (int)pathNextsAux.size(); i++)
@@ -166,6 +180,10 @@ void Trie::BuildPathDecomposition()
       if(pathNextsAux[i] == ONE) 
       {
 	bitset(pathNexts, i);
+      }
+      else
+      {
+	bitclean(pathNexts, i);
       }
     }
     
@@ -345,4 +363,55 @@ void Trie::PrintBoolVector(vector<bool>* v)
             cout << "0 ";
         }
     }
+}
+
+bool Trie::CheckBitmap(uint* bitmap, int len)
+{
+  int currPos = 0;
+  
+  while(true)
+  {
+    for(int i = 0; i < len; i++) cout << bitget(bitmap, i);
+    cout << " XOR ";
+    pathBitmap->PrintBitmap(-1);
+    
+    int position = pathBitmap->XOR(bitmap, currPos, len);
+    
+    cout << " => Position: " << position << endl;
+    
+    if(position == -1)
+    {
+      return true;
+    }
+    else
+    {
+	uint bit = pathNextBitmap->GetBitAt(position);
+	cout << "NextBitmap is " << bit << " at position " << position << endl;
+	
+	if(bit == 1)
+	{
+	  len -= (position + 1);
+	  *bitmap >>= (position + 1);
+	}
+	
+	if(bit == 0)
+	{
+	  return false;
+	}
+	else if(bit == 1 && len <= 0)
+	{
+	  return true;
+	}
+	else if(bit == 1)
+	{
+	  int numOnes = pathNextBitmap->Rank(1, position);
+	  currPos = pathLenBitmap->Select(1, numOnes) + 1;
+	  
+	  cout << "There are " << numOnes << " 1's until position " << position << endl;
+	  cout << numOnes << " 1 is at position " << currPos - 1 << " in PathLenBitmap" << endl;
+	}
+    }
+  }
+  
+  return false;
 }

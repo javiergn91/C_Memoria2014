@@ -42,9 +42,13 @@ public:
     bool IsInTrie(vector<bool>* v);
     bool IsLeaf(TrieNode* node);
     int getSize() { return numNodes; };
+    
     SPBitmap* getPathBitmap() { return pathBitmap; }
     SPBitmap* getPathLenBitmap() { return pathLenBitmap; }
     SPBitmap* getPathNextBitmap() { return pathNextBitmap; }
+    
+    //Check if bitmap is part of the path.
+    bool CheckBitmap(uint* bitmap, int len);
 
 private:
     TrieNode* root;
