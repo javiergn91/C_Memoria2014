@@ -8,27 +8,43 @@ using namespace std;
 using namespace cds_utils;
 using namespace cds_static;
 
-SPBitmap::SPBitmap(unsigned int* bitmap, int len) 
+SPBitmap::SPBitmap(unsigned int* bitmap, int len, BITSEQ seq) 
 {
   this->bitmap = bitmap;
   this->len = len;
   
-  bsrrr = new BitSequenceRRR(bitmap, len);
+  if(seq == BITSEQ_NONE)
+  {
+    bitSeq = NULL;
+  }
+  else if(seq == BITSEQ_RRR)
+  {
+    bitSeq = new BitSequenceRRR(bitmap, len);
+  }
+  else if(seq == BITSEQ_SARRAY)
+  {
+    bitSeq = new BitSequenceSDArray(bitmap, len);
+  }
 }
 
 int SPBitmap::Select(int bit, int ocurrence)
 {
+  if(bitSeq == NULL)
+  {
+    return -1;
+  }
+  
   if(bit == 1)
   {
-    cout << "select1(" << ocurrence << ") = " << bsrrr->select1(ocurrence) << endl;
+    //cout << "select1(" << ocurrence << ") = " << bsrrr->select1(ocurrence) << endl;
     
-    return bsrrr->select1(ocurrence);
+    return bitSeq->select1(ocurrence);
   }
   else if(bit == 0)
   {
-    cout << "select0(" << ocurrence << ") = " << bsrrr->select0(ocurrence) << endl;
+    //cout << "select0(" << ocurrence << ") = " << bsrrr->select0(ocurrence) << endl;
     
-    return bsrrr->select0(ocurrence);
+    return bitSeq->select0(ocurrence);
   }
   
   return 0;
@@ -36,17 +52,22 @@ int SPBitmap::Select(int bit, int ocurrence)
 
 int SPBitmap::Rank(int bit, int position)
 {
+  if(bitSeq == NULL)
+  {
+    return -1;
+  }
+  
   if(bit == 1)
   {
-    cout << "rank1(" << position << ") = " << bsrrr->rank1(position) << endl;
+    //cout << "rank1(" << position << ") = " << bsrrr->rank1(position) << endl;
     
-    return bsrrr->rank1(position);
+    return bitSeq->rank1(position);
   }
   else if(bit == 0)
   {
-    cout << "rank0(" << position << ") = " << bsrrr->rank0(position) << endl;
+    //cout << "rank0(" << position << ") = " << bsrrr->rank0(position) << endl;
     
-    return bsrrr->rank0(position);
+    return bitSeq->rank0(position);
   }
   
   return 0; 

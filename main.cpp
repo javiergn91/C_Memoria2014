@@ -8,6 +8,7 @@
 #include "quadcode.h"
 #include "trie.h"
 #include "utils.h"
+#include "quadcodestruct.h"
 using namespace std;
 
 Relation2D relation2D;
@@ -70,16 +71,18 @@ void auxFunc(Trie* t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, in
 
 int main(int argc, char** argv)
 {
-    ofstream outputFile;
-    outputFile.open("Test/log_SanMarino.txt");
+    //ofstream outputFile;
+    //outputFile.open("Test/log_SanMarino.txt");
     parseTXTFile("Test/SanMarino.txt");
-    relation2D.SetLogStream(&outputFile);
+    //relation2D.SetLogStream(&outputFile);
     relation2D.SetCellSize(0.00001f, 0.00001f);
     relation2D.DetermineArrayLimits();
   
     Trie relation2DTrie;
     relation2D.FillTrie(&relation2DTrie);
    
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    
     Trie tTrie;
 
     auxFunc(&tTrie, 0, 0, 0, 1, 1, 0, 0, 1); 
@@ -92,11 +95,13 @@ int main(int argc, char** argv)
     //auxFunc(&tTrie, 1, 1, 1, 1, 0, 1, 0, 1);
     
     tTrie.CalculateNumberOfLeafsOfEachNode();
-    tTrie.BuildPathDecomposition();
+    tTrie.BuildPathDecomposition(structure);
 
     string bitCode = argv[1];
     
-    if(tTrie.CheckBitmap(Utils::CreateBitSequence(bitCode), bitCode.size()))
+    cout << "SIZE(bytes) = " << structure->GetBytes() << endl;
+    
+    if(structure->CheckBitmap(Utils::CreateBitSequence(bitCode), bitCode.size()))
     {
 	cout << "YES" << endl;
     }

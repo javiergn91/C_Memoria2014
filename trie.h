@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <vector>
 #include "spbitmap.h"
+#include "quadcodestruct.h"
 using namespace std;
 
 class TrieNode
@@ -35,20 +36,13 @@ public:
     ~Trie();
     //The storage is not necessarily an array of bool values, but the library implementation may optimize storage so that each value is stored in a single bit.
     void AddVector(vector<bool>* v);
-    void BuildPathDecomposition();
+    void BuildPathDecomposition(QuadCodeStructure* structure);
     void CalculateNumberOfLeafsOfEachNode();
     void PrintElementsContaining(vector<bool>* v);
     void PrintBoolVector(vector<bool>* v);
     bool IsInTrie(vector<bool>* v);
     bool IsLeaf(TrieNode* node);
     int getSize() { return numNodes; };
-    
-    SPBitmap* getPathBitmap() { return pathBitmap; }
-    SPBitmap* getPathLenBitmap() { return pathLenBitmap; }
-    SPBitmap* getPathNextBitmap() { return pathNextBitmap; }
-    
-    //Check if bitmap is part of the path.
-    bool CheckBitmap(uint* bitmap, int len);
 
 private:
     TrieNode* root;
@@ -59,11 +53,6 @@ private:
     void PrintElementsDFS(TrieNode* node, vector<bool>* v);
 
     int numNodes;
-
-    //Build Path Decomposition bitmaps (NULL if BuildPathDecomposition() method is not executed first)
-    SPBitmap* pathBitmap;
-    SPBitmap* pathLenBitmap;
-    SPBitmap* pathNextBitmap;
 };
 
 #endif // _TRIE_H

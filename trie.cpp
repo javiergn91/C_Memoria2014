@@ -1,3 +1,4 @@
+#include "common.h"
 #include "trie.h"
 #include <stdlib.h>
 #include <iostream>
@@ -12,10 +13,6 @@ using namespace std;
 Trie::Trie()
 {
     root = new TrieNode();
-    pathBitmap = NULL;
-    pathLenBitmap = NULL;
-    pathNextBitmap = NULL;
-
     numNodes = 1;
 }
 
@@ -71,7 +68,7 @@ void Trie::AddVector(vector<bool> *v)
     }
 }
 
-void Trie::BuildPathDecomposition()
+void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 {
     vector<bool> pathsAux;
     vector<bool> pathLensAux;
@@ -134,28 +131,15 @@ void Trie::BuildPathDecomposition()
       pathLensAux[totalSize - 1] = ONE;
     }
     
-    //unsigned int bytesRequired = Utils::GetBytesRequired((unsigned int)pathsAux.size());
-
-    //cout << bytesRequired << endl;
-    
     paths = new uint[uint_len(pathsAux.size(),1)];
     pathLens = new uint[uint_len(pathsAux.size(),1)];
     pathNexts = new uint[uint_len(pathsAux.size(),1)];
-    
-    //paths = (uint*)malloc(bytesRequired);
-    //pathLens = (uint*)malloc(bytesRequired);
-    //pathNexts = (uint*)malloc(bytesRequired);
-
-    //mybasics::bitzero(paths, 0, pathsAux.size());
-    //mybasics::bitzero(pathLens, 0, pathLensAux.size());
-    //mybasics::bitzero(pathNexts, 0, pathNextsAux.size());
 
     for(int i = 0; i < (int)pathsAux.size(); i++)
     {
       if(pathsAux[i] == ONE) 
       {
 	bitset(paths, i);
-	//bitset(paths, i);
       }
       else
       {
@@ -187,9 +171,13 @@ void Trie::BuildPathDecomposition()
       }
     }
     
-    pathBitmap = new SPBitmap(paths, pathsAux.size());
-    pathLenBitmap = new SPBitmap(pathLens, pathLensAux.size());
-    pathNextBitmap = new SPBitmap(pathNexts, pathNextsAux.size());
+    structure->setPathBitmap(new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE));
+    structure->setPathLenBitmap(new SPBitmap(pathLens, pathLensAux.size(), BITSEQ_RRR));
+    structure->setPathNextBitmap(new SPBitmap(pathNexts, pathNextsAux.size(), BITSEQ_SARRAY));
+    
+    //pathBitmap = new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE);
+    //pathLenBitmap = new SPBitmap(pathLens, pathLensAux.size(), BITSEQ_RRR);
+    //pathNextBitmap = new SPBitmap(pathNexts, pathNextsAux.size(), BITSEQ_SARRAY);
 }
 
 void Trie::CreateSubtree(vector<bool>* v, int startIndex, TrieNode* currNode)
@@ -363,55 +351,4 @@ void Trie::PrintBoolVector(vector<bool>* v)
             cout << "0 ";
         }
     }
-}
-
-bool Trie::CheckBitmap(uint* bitmap, int len)
-{
-  int currPos = 0;
-  
-  while(true)
-  {
-    for(int i = 0; i < len; i++) cout << bitget(bitmap, i);
-    cout << " XOR ";
-    pathBitmap->PrintBitmap(-1);
-    
-    int position = pathBitmap->XOR(bitmap, currPos, len);
-    
-    cout << " => Position: " << position << endl;
-    
-    if(position == -1)
-    {
-      return true;
-    }
-    else
-    {
-	uint bit = pathNextBitmap->GetBitAt(position);
-	cout << "NextBitmap is " << bit << " at position " << position << endl;
-	
-	if(bit == 1)
-	{
-	  len -= (position + 1);
-	  *bitmap >>= (position + 1);
-	}
-	
-	if(bit == 0)
-	{
-	  return false;
-	}
-	else if(bit == 1 && len <= 0)
-	{
-	  return true;
-	}
-	else if(bit == 1)
-	{
-	  int numOnes = pathNextBitmap->Rank(1, position);
-	  currPos = pathLenBitmap->Select(1, numOnes) + 1;
-	  
-	  cout << "There are " << numOnes << " 1's until position " << position << endl;
-	  cout << numOnes << " 1 is at position " << currPos - 1 << " in PathLenBitmap" << endl;
-	}
-    }
-  }
-  
-  return false;
 }
