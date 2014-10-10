@@ -77,6 +77,7 @@ void RunCheckPointTest(QuadCodeStructure* structure, bool bCheckResult)
   BitmapWrapper bitW;
   while(cin >> x >> y)
   {
+    /*
     cout << "(" << x << ", " << y << ") ";
     
     Utils::CreateQuadCode(x, y, &bitW, relation2D.GetQuadCodeSize());
@@ -86,7 +87,29 @@ void RunCheckPointTest(QuadCodeStructure* structure, bool bCheckResult)
       cout << bitget(bitW.bitmap, i);
     }
     cout << " ";
+    */
+    Utils::CreateQuadCode(x, y, &bitW, relation2D.GetQuadCodeSize());
+
+      for(int i = 0; i < (int)bitW.len; i++)
+      {
+	cout << bitget(bitW.bitmap, i);
+      }
+      cout << " ";
     
+    bool b1 = structure->CheckBitmap(bitW.bitmap, bitW.len);
+    bool b2 = relation2D.IsInRelation(x, y);
+    
+    if(b1 != b2 || true)
+    {   
+      cout << "(" << x << ", " << y << ") ";
+      
+
+      
+      cout << ((b1) ? 1 : 0) << " " << ((b2) ? 1 : 0) <<  endl;
+    }
+    
+    //cout << "===" << endl;
+    /*
     if(structure->CheckBitmap(bitW.bitmap, bitW.len))
     {
       cout << "1 ";
@@ -109,6 +132,7 @@ void RunCheckPointTest(QuadCodeStructure* structure, bool bCheckResult)
     {
       cout << "0" << endl;
     }
+    */
   }
 }
 
@@ -125,7 +149,7 @@ int main(int argc, char** argv)
     relation2DTrie.CalculateNumberOfLeafsOfEachNode();
     relation2DTrie.BuildPathDecomposition(structure);
     
-    //relation2D.PrintPointList();
+    relation2D.PrintPointList();
     //relation2D.PrintRandomTestCaseCheckPoint(10);
     RunCheckPointTest(structure, true);
     

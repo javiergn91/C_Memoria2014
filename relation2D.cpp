@@ -120,7 +120,11 @@ void Relation2D::FillTrie(Trie* trie)
         int xPos = (int)ceil((elementList[i].first - minDegreeX) / xCellSize);
         int yPos = (int)ceil((elementList[i].second - minDegreeY) / yCellSize);;
 	
+	//if(xPos == 4584 && yPos == 6667)
+	//{
 	points.push_back(Point(xPos, yPos));
+	
+	//cout << "Added: " << xPos << " " << yPos << " ==> ";
 	
 	BitmapWrapper bitmapWrapper;
 	Utils::CreateQuadCode(xPos, yPos, &bitmapWrapper, numBits * 2);
@@ -142,6 +146,7 @@ void Relation2D::FillTrie(Trie* trie)
 	//cout << xPos << " " << yPos << endl;
 	
 	trie->AddVector(&quadcode);
+	//}	
     }
 
     trie->CalculateNumberOfLeafsOfEachNode();

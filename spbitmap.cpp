@@ -84,6 +84,20 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
     {
       uint word = bitmap[initIndex];
       uint wordOP = *op;
+      /*
+      for(int i = 0; i < W; i++)
+      {
+	cout << bitget(&word, i);
+      }
+      cout << endl;
+      
+      for(int i = 0; i < queryLen; i++)
+      {
+	cout << bitget(&wordOP, i);
+      }
+      cout << endl;
+      */
+      
       wordOP = (wordOP & ~(~0 << queryLen));
       word = ((word >> (initBitPos % W)) & ~(~0 << queryLen));
       result = word ^ wordOP;
@@ -109,9 +123,10 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
       
       int word2Size = queryLen - word1Size;
       
-      //cout << "word1Size: " << word2Size << endl;
+      //cout << "word1Size: " << W - word2Size << endl;
       
-      word2 &= ~(~0 << (W - word2Size));
+      //word2 &= ~(~0 << (W - word2Size));
+      word2 &= ~(~0 << (word2Size));
       //word2 >>= (len - word1Size);
       
       if(bDebug)
@@ -121,6 +136,7 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
 	cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
       }
       
+      //cout << word2Size << endl;
       //word1 = (word1 << word1Size) | word2;
       word2 <<= word1Size;
       

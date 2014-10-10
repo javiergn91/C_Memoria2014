@@ -105,9 +105,11 @@ void Utils::CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadL
   }
   
   //cout << quadLength << endl;
-  while(quadLength > 0)
+  while(quadLength >= 0)
   {
     bitclean(bitmapWrapper->bitmap, quadLength);
     quadLength--;
   }
+  
+  //bitset(bitmapWrapper->bitmap, 0);
 }
