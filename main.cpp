@@ -69,21 +69,73 @@ void auxFunc(Trie* t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, in
     t->AddVector(&v);
 }
 
+void RunCheckPointTest(QuadCodeStructure* structure, bool bCheckResult)
+{
+  structure->PrintBitmaps();
+  
+  int x, y;
+  BitmapWrapper bitW;
+  while(cin >> x >> y)
+  {
+    cout << "(" << x << ", " << y << ") ";
+    
+    Utils::CreateQuadCode(x, y, &bitW, relation2D.GetQuadCodeSize());
+    
+    for(int i = 0; i < relation2D.GetQuadCodeSize(); i++)
+    {
+      cout << bitget(bitW.bitmap, i);
+    }
+    cout << " ";
+    
+    if(structure->CheckBitmap(bitW.bitmap, bitW.len))
+    {
+      cout << "1 ";
+    }
+    else
+    {
+      cout << "0 ";
+    }
+    
+    if(!bCheckResult)
+    {
+      continue;
+    }
+    
+    if(relation2D.IsInRelation(x, y))
+    {
+      cout << "1" << endl;
+    }
+    else
+    {
+      cout << "0" << endl;
+    }
+  }
+}
+
 int main(int argc, char** argv)
 {
-    //ofstream outputFile;
-    //outputFile.open("Test/log_SanMarino.txt");
     parseTXTFile("Test/SanMarino.txt");
-    //relation2D.SetLogStream(&outputFile);
-    relation2D.SetCellSize(0.00001f, 0.00001f);
-    relation2D.DetermineArrayLimits();
-  
+    
     Trie relation2DTrie;
-    relation2D.FillTrie(&relation2DTrie);
-   
     QuadCodeStructure* structure = new QuadCodeStructure();
     
-    Trie tTrie;
+    relation2D.SetCellSize(0.00001f, 0.00001f);
+    relation2D.DetermineArrayLimits();
+    relation2D.FillTrie(&relation2DTrie);
+    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
+    relation2DTrie.BuildPathDecomposition(structure);
+    
+    //relation2D.PrintPointList();
+    //relation2D.PrintRandomTestCaseCheckPoint(10);
+    RunCheckPointTest(structure, true);
+    
+    delete structure;
+    
+    return 0;
+}
+
+/*
+ *  Trie tTrie;
 
     auxFunc(&tTrie, 0, 0, 0, 1, 1, 0, 0, 1); 
     auxFunc(&tTrie, 0, 1, 0, 0, 0, 1, 0, 1);
@@ -125,7 +177,5 @@ int main(int argc, char** argv)
     
   
     outputFile.close();
-    
-    return 0;
-}
+ */
 	    

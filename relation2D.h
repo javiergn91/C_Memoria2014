@@ -1,6 +1,7 @@
 #ifndef _RELATION2D_H_
 #define _RELATION2D_H_
 
+#include "common.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -20,6 +21,11 @@ public:
     void DetermineArrayLimits();
     void FillTrie(Trie* trie);
     void SetLogStream(ofstream* newStream);
+    int GetQuadCodeSize() { return numBits * 2; }
+    
+    void PrintRandomTestCaseCheckPoint(int n);
+    void PrintPointList();
+    bool IsInRelation(int x, int y);
 
 private:
     float minDegreeX;
@@ -28,9 +34,11 @@ private:
     float maxDegreeY;
     int xArraySize;
     int yArraySize;
+    int numBits;
     float xCellSize;
     float yCellSize;
     vector< pair<float, float> > elementList;
+    vector< Point > points;
 
     ofstream *logStream;
 };

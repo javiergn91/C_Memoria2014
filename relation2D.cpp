@@ -1,6 +1,7 @@
 #include "relation2D.h"
 #include "math.h"
 #include "quadcode.h"
+#include "utils.h"
 
 Relation2D::Relation2D()
 {
@@ -21,7 +22,7 @@ void Relation2D::SetCellSize(float x, float y)
 
 void Relation2D::DetermineArrayLimits()
 {
-    cout << "Calculing array limits" << endl;
+    //cout << "Calculing array limits" << endl;
 
     if(elementList.size() > 0)
     {
@@ -44,18 +45,61 @@ void Relation2D::DetermineArrayLimits()
         xArraySize = (int)ceil((fabs(maxDegreeX - minDegreeX)) / xCellSize);
         yArraySize = (int)ceil((fabs(maxDegreeY - minDegreeY)) / yCellSize);
 
-        *logStream << "Latitude X degree: (min, max) - (" << minDegreeX << ", " << maxDegreeX << ")" << endl;
-        *logStream << "Longitude Y degree: (min, max) - (" << minDegreeY << ", " << maxDegreeY << ")" << endl;
-        *logStream << "Each matrix position represents " << xCellSize << " degree latitude and " << yCellSize << " degree longitude" << endl;
-        *logStream << "Matrix size: x-dimension = " << xArraySize << ", y-dimension = " << yArraySize << endl;
+	if(logStream != NULL)
+	{
+	  *logStream << "Latitude X degree: (min, max) - (" << minDegreeX << ", " << maxDegreeX << ")" << endl;
+	  *logStream << "Longitude Y degree: (min, max) - (" << minDegreeY << ", " << maxDegreeY << ")" << endl;
+	  *logStream << "Each matrix position represents " << xCellSize << " degree latitude and " << yCellSize << " degree longitude" << endl;
+	  *logStream << "Matrix size: x-dimension = " << xArraySize << ", y-dimension = " << yArraySize << endl;
+	}
     }
+}
+
+bool Relation2D::IsInRelation(int x, int y)
+{
+  for(int i = 0; i < (int)points.size(); i++) 
+  {
+    if(points[i].x == x && points[i].y == y)
+    {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+void Relation2D::PrintRandomTestCaseCheckPoint(int n)
+{
+  srand(time(NULL));
+  
+  while(n--)
+  {
+    int r = rand() % 2;
+    if(r == 0)
+    {
+      int idx = rand() % (int)points.size();
+      cout << points[idx].x << " " << points[idx].y << endl;
+    }
+    else
+    {
+      cout << rand() % xArraySize << " " << rand() % yArraySize << endl;
+    }
+  }
+}
+
+void Relation2D::PrintPointList()
+{
+  for(int i = 0; i < points.size(); i++)
+  {
+    cout << points[i].x << " " << points[i].y << endl;
+  }
 }
 
 void Relation2D::FillTrie(Trie* trie)
 {
     vector<bool> quadcode;
 
-    int numBits = 0;
+    numBits = 0;
     int maxSize = max(xArraySize, yArraySize);
 
     while(maxSize)
@@ -64,27 +108,40 @@ void Relation2D::FillTrie(Trie* trie)
         maxSize /= 2;
     }
 
-    *logStream << "Quadcode size: " << numBits << " bits." << endl;
-
+    if(logStream != NULL)
+    {
+      *logStream << "Quadcode size: " << numBits << " bits." << endl;
+    }
+    
+    points.clear();
+    
     for(int i = 0; i < (int)elementList.size(); i++)
     {
         int xPos = (int)ceil((elementList[i].first - minDegreeX) / xCellSize);
         int yPos = (int)ceil((elementList[i].second - minDegreeY) / yCellSize);;
-
-        *logStream << "Point (" << elementList[i].first << ", " << elementList[i].second << ") set at position (" << xPos << ", " << yPos << ") -> QuadCode: ";
-
-        QuadCode::CreateQuadCode(numBits, &quadcode, xPos, yPos);
-        /*
-        for(int i = 0; i < (int)quadcode.size(); i++)
-        {
-            *logStream << quadcode[i];
-        }
-
-        *logStream << " (" << Utils::GetDecimalRepresentation(&quadcode) << ")";
-        */
-        trie->AddVector(&quadcode);
-
-        //*logStream << endl;
+	
+	points.push_back(Point(xPos, yPos));
+	
+	BitmapWrapper bitmapWrapper;
+	Utils::CreateQuadCode(xPos, yPos, &bitmapWrapper, numBits * 2);
+	
+	quadcode.clear();
+	for(int i = 0; i < numBits * 2; i++)
+	{
+	  quadcode.push_back((bitget(bitmapWrapper.bitmap, i) == 1) ? true : false);
+	  //cout << bitget(bitmapWrapper.bitmap, i);
+	}
+	//cout << endl;
+	
+	//int a;
+	//cin >> a;
+	
+	//cout << " (" << xPos << ", " << yPos << ")" << endl;
+	
+	
+	//cout << xPos << " " << yPos << endl;
+	
+	trie->AddVector(&quadcode);
     }
 
     trie->CalculateNumberOfLeafsOfEachNode();

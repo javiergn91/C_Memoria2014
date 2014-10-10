@@ -90,36 +90,57 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
     }
     else
     {
-      cout << "Second case" << endl;
+      //cout << "Second case" << endl;
+      
+      bool bDebug = false;
       
       uint word1 = bitmap[initIndex];
       uint word2 = bitmap[finalIndex];
       
-      cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
-      cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      if(bDebug)
+      {
+	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
+	cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      }
       
-      word1 = (word1 >> (initBitPos % W)) & ~(~0 << (W - initBitPos));
+      int word1Size = W - initBitPos % W;
       
-      int word1Size = queryLen - (W - initBitPos);
-      word2 = word2 & (~0 << (len - word1Size));
-      word2 >>= (len - word1Size);
+      word1 = (word1 >> (initBitPos % W)) & ~(~0 << word1Size);
       
-      cout << "===" << endl;
-      cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
-      cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      int word2Size = queryLen - word1Size;
       
-      word1 = (word1 << word1Size) | word2;
+      //cout << "word1Size: " << word2Size << endl;
       
-      cout << "===" << endl;
-      cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
-      cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      word2 &= ~(~0 << (W - word2Size));
+      //word2 >>= (len - word1Size);
+      
+      if(bDebug)
+      {
+	cout << "===" << endl;
+	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
+	cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      }
+      
+      //word1 = (word1 << word1Size) | word2;
+      word2 <<= word1Size;
+      
+      word1 |= word2;
+      
+      if(bDebug)
+      {
+	cout << "===" << endl;
+	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
+	//cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      }
       
       uint wordOP = *op;
       wordOP = (wordOP & ~(~0 << queryLen));
       
-      cout << "===" << endl;
-      cout << "Op: "; for(int i = 0; i < W; i++) cout << bitget(op, i); cout << endl;
-      
+      if(bDebug)
+      {
+	//cout << "===" << endl;
+	cout << "Op: "; for(int i = 0; i < W; i++) cout << bitget(op, i); cout << endl;
+      }
       result = word1 ^ wordOP;
     }
     
