@@ -230,6 +230,21 @@ int main(int argc, char** argv)
     return 0;
   }
   
+  if(strcmp(argv[1], "-RangeEmptyQuery") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    
+    Trie relation2DTrie;
+    relation2D.ReadBinaryFile(argv[2]);
+    relation2D.FillTriePointsDefined(&relation2DTrie);
+    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
+    relation2DTrie.BuildPathDecomposition(structure);
+    
+    RunCheckPointTest(structure);
+    
+    delete structure;   
+  }
+  
   if(strcmp(argv[1], "-Size") == 0)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();

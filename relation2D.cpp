@@ -164,31 +164,44 @@ void Relation2D::WriteBinaryFile(const char* filename)
   myFile.write((char*)&numPoints, sizeof(long int));
   
   int cnt = 0;
+  int currIdx = 0;
   
   for(int i = 1; i <= N; i++)
   {
     int newList = i * (-1);
-    
+    /*
     cnt++;
     if(cnt >= 100000)
     {
       cout << newList << endl;
       cnt = 0;
     }
+    */
     //cout << newList << endl;
-    
+    bool bFound = false;
     myFile.write((char*)&newList, sizeof(int));
     for(int j = 0; j < points.size(); j++)
     {
       if(points[j].y == (i - 1))
       {
+	//bFound = true;
 	int p = points[j].x + 1;
 	myFile.write((char*)&p, sizeof(int));
+	//currIdx = j + 1;
+      }
+      else
+      {
+	/*
+	if(bFound)
+	{
+	  break;
+	}
+	*/
       }
     }
   }
   
-  cout << "OK" << endl;
+  //cout << "OK" << endl;
   
   myFile.close();
 }
