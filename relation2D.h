@@ -20,13 +20,21 @@ public:
     void AddPair(float element1, float element2);
     void DetermineArrayLimits();
     void FillTrie(Trie* trie);
+    void FillTriePointsDefined(Trie* trie);
     void SetLogStream(ofstream* newStream);
-    int GetQuadCodeSize() { return numBits * 2; }
+    int GetQuadCodeSize() { return numBits; }
     
     void PrintRandomTestCaseCheckPoint(int n);
     void PrintPointList();
+    void PreprocessPointListUniqueValue();
     bool IsInRelation(int x, int y);
-
+    vector< Point > GetPointVector() { return points; }
+    
+    void WriteBinaryFile(const char* filename);
+    void ReadBinaryFile(const char* filename);
+    
+    int getN() { return N; }
+    
 private:
     float minDegreeX;
     float minDegreeY;
@@ -37,6 +45,7 @@ private:
     int numBits;
     float xCellSize;
     float yCellSize;
+    int N;
     vector< pair<float, float> > elementList;
     vector< Point > points;
 

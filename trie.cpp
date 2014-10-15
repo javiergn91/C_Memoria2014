@@ -175,6 +175,8 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
     structure->setPathLenBitmap(new SPBitmap(pathLens, pathLensAux.size(), BITSEQ_RRR));
     structure->setPathNextBitmap(new SPBitmap(pathNexts, pathNextsAux.size(), BITSEQ_SARRAY));
     
+    //cout << "dasdsa" << endl;
+    
     //pathBitmap = new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE);
     //pathLenBitmap = new SPBitmap(pathLens, pathLensAux.size(), BITSEQ_RRR);
     //pathNextBitmap = new SPBitmap(pathNexts, pathNextsAux.size(), BITSEQ_SARRAY);

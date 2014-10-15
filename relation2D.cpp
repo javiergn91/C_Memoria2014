@@ -2,11 +2,27 @@
 #include "math.h"
 #include "quadcode.h"
 #include "utils.h"
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+bool orderPoints(Point p1, Point p2)
+{
+  if(p1.y == p2.y)
+  {
+    return p1.x < p2.x;
+  }
+  
+  return p1.y < p2.y;
+}
 
 Relation2D::Relation2D()
 {
     elementList.clear();
     logStream = NULL;
+    N = 1;
 }
 
 void Relation2D::AddPair(float element1, float element2)
@@ -18,6 +34,27 @@ void Relation2D::SetCellSize(float x, float y)
 {
     xCellSize = x;
     yCellSize = y;
+}
+
+void Relation2D::PreprocessPointListUniqueValue()
+{
+  vector<Point> newPointList;
+  
+  map< pair<int, int> , bool> M;
+  for(int i = 0; i < (int)points.size(); i++)
+  {
+    if(!M[make_pair(points[i].x, points[i].y)])
+    {
+      newPointList.push_back(points[i]);
+      M[make_pair(points[i].x, points[i].y)] = true;
+    }
+  }
+  
+  points.clear();
+  for(int i = 0; i < (int)newPointList.size(); i++)
+  {
+    points.push_back(newPointList[i]);
+  }
 }
 
 void Relation2D::DetermineArrayLimits()
@@ -45,6 +82,8 @@ void Relation2D::DetermineArrayLimits()
         xArraySize = (int)ceil((fabs(maxDegreeX - minDegreeX)) / xCellSize);
         yArraySize = (int)ceil((fabs(maxDegreeY - minDegreeY)) / yCellSize);
 
+	//cout << xArraySize << " " << yArraySize << endl;
+	
 	if(logStream != NULL)
 	{
 	  *logStream << "Latitude X degree: (min, max) - (" << minDegreeX << ", " << maxDegreeX << ")" << endl;
@@ -53,6 +92,84 @@ void Relation2D::DetermineArrayLimits()
 	  *logStream << "Matrix size: x-dimension = " << xArraySize << ", y-dimension = " << yArraySize << endl;
 	}
     }
+}
+
+void Relation2D::ReadBinaryFile(const char* filename)
+{
+  points.clear();
+  
+  ifstream file(filename, ios::in | ios::binary);
+  
+  int intAux;
+  long longAux;
+  
+  file.read((char*)&intAux, sizeof(int));
+  file.read((char*)&longAux, sizeof(long int));
+  
+  //cout << intAux << endl;
+  //cout << longAux << endl;
+  
+  this->N = intAux;
+  
+  int N = intAux;
+  
+  file.read((char*)&intAux, sizeof(int));
+  
+  intAux = 0;
+  for(int i = 0; i < N; i++)
+  {
+    while(1)
+    {
+      if(file.eof())
+      {
+	break;
+      }
+      
+      file.read((char*)&intAux, sizeof(int));
+      
+      if(intAux >= 0)
+      {
+	points.push_back(Point(intAux - 1, i));
+      }
+      else
+      {
+	//cout << intAux << endl;
+	
+	break;
+      }
+    }
+  }
+  
+  file.close();
+}
+
+void Relation2D::WriteBinaryFile(const char* filename)
+{ 
+  sort(points.begin(), points.end(), orderPoints);
+  
+  ofstream myFile(filename, ios::out | ios::binary);
+  
+  int N = 1 << (GetQuadCodeSize() / 2);
+  long numPoints = points.size();
+  
+  myFile.write((char*)&N, sizeof(int));
+  myFile.write((char*)&numPoints, sizeof(long int));
+  
+  for(int i = 1; i <= N; i++)
+  {
+    int newList = i * (-1);
+    myFile.write((char*)&newList, sizeof(int));
+    for(int j = 0; j < points.size(); j++)
+    {
+      if(points[j].y == (i - 1))
+      {
+	int p = points[j].x + 1;
+	myFile.write((char*)&p, sizeof(int));
+      }
+    }
+  }
+  
+  myFile.close();
 }
 
 bool Relation2D::IsInRelation(int x, int y)
@@ -82,7 +199,7 @@ void Relation2D::PrintRandomTestCaseCheckPoint(int n)
     }
     else
     {
-      cout << rand() % xArraySize << " " << rand() % yArraySize << endl;
+      cout << rand() % N << " " << rand() % N << endl;
     }
   }
 }
@@ -93,6 +210,28 @@ void Relation2D::PrintPointList()
   {
     cout << points[i].x << " " << points[i].y << endl;
   }
+}
+
+void Relation2D::FillTriePointsDefined(Trie* trie)
+{
+    numBits = bits(N) * 2;
+    vector<bool> quadcode;
+    
+    for(int i = 0; i < (int)points.size(); i++)
+    {
+	BitmapWrapper bitmapWrapper;
+	Utils::CreateQuadCode(points[i].x, points[i].y, &bitmapWrapper, numBits);
+	
+	quadcode.clear();
+	for(int i = 0; i < numBits; i++)
+	{
+	  quadcode.push_back((bitget(bitmapWrapper.bitmap, i) == 1) ? true : false);
+	}
+	
+	trie->AddVector(&quadcode);	
+    }
+
+    trie->CalculateNumberOfLeafsOfEachNode();
 }
 
 void Relation2D::FillTrie(Trie* trie)

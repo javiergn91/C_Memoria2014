@@ -9,21 +9,24 @@
 #include "trie.h"
 #include "utils.h"
 #include "quadcodestruct.h"
+#include <string.h>
 using namespace std;
 
 Relation2D relation2D;
 
 void parseTXTFile(string filename)
 {
+    //cout << filename << endl;
+  
     string line;
     ifstream myFile(filename.c_str());
 
     bool bIsTagLine = true;
-
+    
     if(myFile.is_open())
     {
         while(getline(myFile, line))
-        {
+	{
             if(bIsTagLine)
             {
                 bIsTagLine = false;
@@ -49,13 +52,14 @@ void parseTXTFile(string filename)
             float lonValue = (float)atof(lon.c_str());
 
            relation2D.AddPair(latValue, lonValue);
+	   //cout << latValue << " " << lonValue << endl;
         }
     }
 
     myFile.close();
 }
 
-void auxFunc(Trie* t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8) {
+void auxFunc(Trie* t, int i1, int i2, int i3, int i4) {
     vector<bool> v;
     v.clear();
     v.push_back(i1);
@@ -69,75 +73,161 @@ void auxFunc(Trie* t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, in
     t->AddVector(&v);
 }
 
-void RunCheckPointTest(QuadCodeStructure* structure, bool bCheckResult)
-{
-  structure->PrintBitmaps();
-  
+void RunCheckPointTest(QuadCodeStructure* structure)
+{  
   int x, y;
   BitmapWrapper bitW;
+  
+  bool bOk = true;
+  
   while(cin >> x >> y)
   {
-    /*
+    Utils::CreateQuadCode(x, y, &bitW, relation2D.GetQuadCodeSize());
+ 
+    bool b1 = structure->CheckBitmap(bitW.bitmap, bitW.len, NULL);
+
+    if(!bOk)
+    {
+      cout << "Error!" << endl;
+      
+      return;
+    }
+    
     cout << "(" << x << ", " << y << ") ";
-    
-    Utils::CreateQuadCode(x, y, &bitW, relation2D.GetQuadCodeSize());
-    
-    for(int i = 0; i < relation2D.GetQuadCodeSize(); i++)
-    {
-      cout << bitget(bitW.bitmap, i);
-    }
-    cout << " ";
-    */
-    Utils::CreateQuadCode(x, y, &bitW, relation2D.GetQuadCodeSize());
-
-      for(int i = 0; i < (int)bitW.len; i++)
-      {
-	cout << bitget(bitW.bitmap, i);
-      }
-      cout << " ";
-    
-    bool b1 = structure->CheckBitmap(bitW.bitmap, bitW.len);
-    bool b2 = relation2D.IsInRelation(x, y);
-    
-    if(b1 != b2 || true)
-    {   
-      cout << "(" << x << ", " << y << ") ";
-      
-
-      
-      cout << ((b1) ? 1 : 0) << " " << ((b2) ? 1 : 0) <<  endl;
-    }
-    
-    //cout << "===" << endl;
-    /*
-    if(structure->CheckBitmap(bitW.bitmap, bitW.len))
-    {
-      cout << "1 ";
-    }
+  
+    if(b1)
+      cout << "Y" << endl;
     else
-    {
-      cout << "0 ";
-    }
-    
-    if(!bCheckResult)
-    {
-      continue;
-    }
-    
-    if(relation2D.IsInRelation(x, y))
-    {
-      cout << "1" << endl;
-    }
-    else
-    {
-      cout << "0" << endl;
-    }
-    */
+      cout << "N" << endl;
   }
+  
+  if(bOk)
+  {
+    cout << "OK!" << endl;
+  }
+}
+
+void RunEmptyQueryTest(QuadCodeStructure* structure)
+{
+  int x1, y1, x2, y2;
+  while(cin >> x1 >> y1 >> x2 >> y2)
+  {    
+    cout << x1 << " " << y1 << " " << x2 << " " << y2 << ": ";
+    bool bResult = structure->RangeEmptyQuery(Point(x1, y1), Point(x2, y2));
+
+    int n = 0;
+    for(int k = 0; k < (int)relation2D.GetPointVector().size(); k++)
+    {
+	Point p = relation2D.GetPointVector()[k];
+	if(relation2D.GetPointVector()[k].x >= x1 
+	  && relation2D.GetPointVector()[k].x <= x2
+	  && relation2D.GetPointVector()[k].y >= y1
+	  && relation2D.GetPointVector()[k].y <= y2)
+	{
+	  cout << "(" << p.x << ", " << p.y << ") - ";
+	  
+	  n++;
+	}
+    }
+    cout << endl;
+	
+    if(n == 0 && bResult || n > 0 && !bResult)
+      cout << "WRONG!" << endl;
+    else 
+      cout << "OK! => " << ((bResult) ? "Y" : "N") << endl;
+  }
+}
+
+void PrintAllQuadboxes(int x1, int y1, int x2, int y2, int amount)
+{
+  if(amount <= 0)
+    return;
+  
+  cout << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
+ 
+  //int a;
+  //cin >> a;
+  
+  if(x1 == x2 && y1 == y2 || x1 > x2 || y1 > y2)
+    return;
+  
+  PrintAllQuadboxes(x1, y1, (x1 + x2) / 2, (y1 + y2) / 2, amount - 4);
+  PrintAllQuadboxes((x1 + x2) / 2 + 1, y1, x2, (y1 + y2) / 2, amount - 4);
+  PrintAllQuadboxes(x1, (y1 + y2) / 2 + 1, (x1 + x2) / 2, y2, amount - 4);
+  PrintAllQuadboxes((x1 + x2) / 2 + 1, (y1 + y2) / 2 + 1, x2, y2, amount - 4);
 }
 
 int main(int argc, char** argv)
 {
+  if(argc <= 1)
+  {
+    cout << "--help to view the command list" << endl;
+  
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "--help") == 0)
+  {
+    cout << "-rbin filename: Read a binary file containing an adjacency list." << endl << endl;
+    cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
+    cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
+    cout << "-CheckPoint binaryfilename: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-rbin") == 0)
+  {
+    relation2D.ReadBinaryFile(argv[2]);
+    relation2D.PrintPointList();
+  
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-GNSCountryFileWriteBin") == 0)
+  {
+    //parseTXTFile("Test/SanMarino.txt");
+    parseTXTFile(argv[2]);
+
+    relation2D.SetCellSize(0.00001f, 0.00001f);
+    relation2D.DetermineArrayLimits();    
+    
+    Trie relation2DTrie;
+    relation2D.FillTrie(&relation2DTrie);
+    relation2D.PreprocessPointListUniqueValue();
+    
+    //relation2D.PrintPointList();
+    
+    relation2D.WriteBinaryFile(argv[3]);
+    
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-CreateTestForCheckPoint") == 0)
+  {
+    relation2D.ReadBinaryFile(argv[2]);
+    relation2D.PrintRandomTestCaseCheckPoint(atoi(argv[3]));
+    
+    return 0;
+  }
+ 
+  if(strcmp(argv[1], "-CheckPoint") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    
+    Trie relation2DTrie;
+    relation2D.ReadBinaryFile(argv[2]);
+    relation2D.FillTriePointsDefined(&relation2DTrie);
+    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
+    relation2DTrie.BuildPathDecomposition(structure);
+    
+    RunCheckPointTest(structure);
+    
+    delete structure;
+    
+    return 0;
+  }
+  
+  /*
     parseTXTFile("Test/SanMarino.txt");
     
     Trie relation2DTrie;
@@ -149,11 +239,55 @@ int main(int argc, char** argv)
     relation2DTrie.CalculateNumberOfLeafsOfEachNode();
     relation2DTrie.BuildPathDecomposition(structure);
     
-    relation2D.PrintPointList();
-    //relation2D.PrintRandomTestCaseCheckPoint(10);
-    RunCheckPointTest(structure, true);
+    structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
     
-    delete structure;
+    //cout << "QuadCode Size: " << relation2D.GetQuadCodeSize() << endl;
+    int N = 1 << (relation2D.GetQuadCodeSize() / 2);
+    
+    relation2D.PreprocessPointListUniqueValue();
+    
+    relation2D.WriteBinaryFile("SanMarino.bin");
+    */
+    //relation2D.PrintPointList();
+    
+    //PrintAllQuadboxes(0, 0, N - 1, N - 1, 1);
+    //relation2D.PrintRandomTestCaseCheckPoint(1000);
+    //RunCheckPointTest(structure, true);
+    //RunEmptyQueryTest(structure);
+    
+    
+    //Trie tTrie;
+    //auxFunc(&tTrie, 0, 0, 1, 1);
+    //auxFunc(&tTrie, 0, 1, 0, 1);
+    //auxFunc(&tTrie, 1, 0, 1, 1);
+    //auxFunc(&tTrie, 1, 1, 0, 1);
+    
+    //structure->setQuadCodeSize(4);
+    
+    //tTrie.CalculateNumberOfLeafsOfEachNode();
+    //tTrie.BuildPathDecomposition(structure);
+    
+    //structure->getPathBitmap()->PrintBitmap(-1); cout << endl;
+    //structure->getPathNextBitmap()->PrintBitmap(-1); cout << endl;
+    //structure->getPathLenBitmap()->PrintBitmap(-1); cout << endl;
+    //RunEmptyQueryTest(structure);
+    
+    //cout << structure->getPathNextBitmap()->GetLen() << endl;
+    
+    //structure->GetPoints(0, 0, 16383, 16383);
+    //structure->PrintPointList();
+    
+    /*
+    if(structure->RangeEmptyQuery(Point(0, 0), Point(1, 1)))
+    {
+      cout << "Y" << endl;
+    }
+    else
+    {
+      cout << "N" << endl;
+    }
+    */
+    //delete structure;
     
     return 0;
 }
