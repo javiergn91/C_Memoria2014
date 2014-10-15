@@ -113,8 +113,9 @@ void RunEmptyQueryTest(QuadCodeStructure* structure)
   while(cin >> x1 >> y1 >> x2 >> y2)
   {    
     cout << x1 << " " << y1 << " " << x2 << " " << y2 << ": ";
+    
     bool bResult = structure->RangeEmptyQuery(Point(x1, y1), Point(x2, y2));
-
+    
     int n = 0;
     for(int k = 0; k < (int)relation2D.GetPointVector().size(); k++)
     {
@@ -135,6 +136,8 @@ void RunEmptyQueryTest(QuadCodeStructure* structure)
       cout << "WRONG!" << endl;
     else 
       cout << "OK! => " << ((bResult) ? "Y" : "N") << endl;
+    
+    cout << endl;
   }
 }
 
@@ -172,6 +175,8 @@ int main(int argc, char** argv)
     cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
     cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
     cout << "-CheckPoint binaryfilename: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
+    cout << "-CreateTestForRangeEmptyQuery binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
+    cout << "-RangeEmptyQuery binaryfilename: (x1, y1); (x2, y2) until end of file is reached." << endl << endl;
     cout << "-Size binaryfilename: Size of the structure (bitmaps + rank/select)" << endl << endl;
     cout << "-Info binaryfilename: Size of each bitmap, number of 1's and 0's of each bitmap." << endl << endl;
     
@@ -188,17 +193,14 @@ int main(int argc, char** argv)
   
   if(strcmp(argv[1], "-GNSCountryFileWriteBin") == 0)
   {
-    //parseTXTFile("Test/SanMarino.txt");
     parseTXTFile(argv[2]);
 
-    relation2D.SetCellSize(0.00001f, 0.00001f);
+    relation2D.SetCellSize(0.01f, 0.01f);
     relation2D.DetermineArrayLimits();    
     
     Trie relation2DTrie;
     relation2D.FillTrie(&relation2DTrie);
     relation2D.PreprocessPointListUniqueValue();
-    
-    //relation2D.PrintPointList();
     
     relation2D.WriteBinaryFile(argv[3]);
     
@@ -239,8 +241,9 @@ int main(int argc, char** argv)
     relation2D.FillTriePointsDefined(&relation2DTrie);
     relation2DTrie.CalculateNumberOfLeafsOfEachNode();
     relation2DTrie.BuildPathDecomposition(structure);
+    structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
     
-    RunCheckPointTest(structure);
+    RunEmptyQueryTest(structure);
     
     delete structure;   
   }
@@ -284,6 +287,14 @@ int main(int argc, char** argv)
     delete structure;
     
     return 0;
+  }
+  
+  if(strcmp(argv[1], "-CreateTestForRangeEmptyQuery") == 0)
+  {
+    relation2D.ReadBinaryFile(argv[2]);
+    int N = 1 << (relation2D.GetQuadCodeSize() / 2);
+    //cout << "N: " << N << endl;
+    PrintAllQuadboxes(0, 0, N - 1, N - 1, atoi(argv[3]));
   }
   
   /*

@@ -101,6 +101,8 @@ void Relation2D::ReadBinaryFile(const char* filename)
 {
   points.clear();
   
+  //cout << filename << endl;
+  
   ifstream file(filename, ios::in | ios::binary);
   
   int intAux;
@@ -113,6 +115,8 @@ void Relation2D::ReadBinaryFile(const char* filename)
   //cout << longAux << endl;
   
   this->N = intAux;
+  
+  numBits = bits(this->N) * 2;
   
   int N = intAux;
   
@@ -177,7 +181,7 @@ void Relation2D::WriteBinaryFile(const char* filename)
       cnt = 0;
     }
     */
-    //cout << newList << endl;
+    cout << newList << endl;
     bool bFound = false;
     myFile.write((char*)&newList, sizeof(int));
     for(int j = 0; j < points.size(); j++)
