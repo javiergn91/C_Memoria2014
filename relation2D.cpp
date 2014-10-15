@@ -82,7 +82,10 @@ void Relation2D::DetermineArrayLimits()
         xArraySize = (int)ceil((fabs(maxDegreeX - minDegreeX)) / xCellSize);
         yArraySize = (int)ceil((fabs(maxDegreeY - minDegreeY)) / yCellSize);
 
-	//cout << xArraySize << " " << yArraySize << endl;
+	int maxSize = max(xArraySize, yArraySize);
+	numBits = bits(maxSize) * 2;
+	
+	//cout << numBits << " " << maxSize << endl;
 	
 	if(logStream != NULL)
 	{
@@ -149,15 +152,31 @@ void Relation2D::WriteBinaryFile(const char* filename)
   
   ofstream myFile(filename, ios::out | ios::binary);
   
-  int N = 1 << (GetQuadCodeSize() / 2);
+  //cout << numBits << endl;
+  
+  int N = 1 << numBits;
+ 
   long numPoints = points.size();
+  
+  //cout << N << endl;
   
   myFile.write((char*)&N, sizeof(int));
   myFile.write((char*)&numPoints, sizeof(long int));
   
+  int cnt = 0;
+  
   for(int i = 1; i <= N; i++)
   {
     int newList = i * (-1);
+    
+    cnt++;
+    if(cnt >= 100000)
+    {
+      cout << newList << endl;
+      cnt = 0;
+    }
+    //cout << newList << endl;
+    
     myFile.write((char*)&newList, sizeof(int));
     for(int j = 0; j < points.size(); j++)
     {
@@ -168,6 +187,8 @@ void Relation2D::WriteBinaryFile(const char* filename)
       }
     }
   }
+  
+  cout << "OK" << endl;
   
   myFile.close();
 }
