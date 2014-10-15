@@ -172,6 +172,9 @@ int main(int argc, char** argv)
     cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
     cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
     cout << "-CheckPoint binaryfilename: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
+    cout << "-Size binaryfilename: Size of the structure (bitmaps + rank/select)" << endl << endl;
+    cout << "-Info binaryfilename: Size of each bitmap, number of 1's and 0's of each bitmap." << endl << endl;
+    
     return 0;
   }
   
@@ -221,6 +224,47 @@ int main(int argc, char** argv)
     relation2DTrie.BuildPathDecomposition(structure);
     
     RunCheckPointTest(structure);
+    
+    delete structure;
+    
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-Size") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    
+    Trie relation2DTrie;
+    relation2D.ReadBinaryFile(argv[2]);
+    relation2D.FillTriePointsDefined(&relation2DTrie);
+    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
+    relation2DTrie.BuildPathDecomposition(structure);
+    
+    cout << structure->GetBytes() << endl;
+    
+    delete structure;
+    
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-Info") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    
+    Trie relation2DTrie;
+    relation2D.ReadBinaryFile(argv[2]);
+    relation2D.FillTriePointsDefined(&relation2DTrie);
+    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
+    relation2DTrie.BuildPathDecomposition(structure);
+    
+    cout << "Size(bytes): " << structure->GetBytes() << endl << endl;
+    cout << "----- Size -----" << endl;
+    cout << "Path bitmap size: " << structure->getPathBitmap()->GetSize() << endl;
+    cout << "Next bitmap size: " << structure->getPathNextBitmap()->GetSize() << endl;
+    cout << "Len bitmap size: " << structure->getPathLenBitmap()->GetSize() << endl << endl;
+    cout << "----- Number of (0/1) ------" << endl;
+    cout << "Next bitmap: (" << structure->getPathNextBitmap()->NumberOfZeros() << "/" << structure->getPathNextBitmap()->NumberOfOnes() << ")" << endl;
+    cout << "Len bitmap: (" << structure->getPathLenBitmap()->NumberOfZeros() << "/" << structure->getPathLenBitmap()->NumberOfOnes() << ")" << endl;
     
     delete structure;
     

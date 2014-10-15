@@ -27,6 +27,22 @@ SPBitmap::SPBitmap(unsigned int* bitmap, int len, BITSEQ seq)
   }
 }
 
+int SPBitmap::NumberOfOnes()
+{
+  if(bitSeq == NULL)
+    return 0;
+  
+  return Rank(1, len - 1);
+}
+
+int SPBitmap::NumberOfZeros()
+{
+  if(bitSeq == NULL)
+    return 0;
+  
+  return Rank(0, len - 1);
+}
+
 int SPBitmap::Select(int bit, int ocurrence)
 {
   if(bitSeq == NULL)

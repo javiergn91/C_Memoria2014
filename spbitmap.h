@@ -30,6 +30,8 @@ public:
   int Select(int bit, int ocurrence);
   int Rank(int bit, int position);
   int GetLen() { return len; }
+  int NumberOfOnes();
+  int NumberOfZeros();
   
   int GetSize() { return (bitSeq != NULL) ? bitSeq->getSize() : (len / sizeof(uint) + 1); }
   bool HasRankSelectStruct() { return bitSeq != NULL; }
