@@ -34,6 +34,7 @@ public:
     void ReadBinaryFile(const char* filename);
     
     int getN() { return N; }
+    long getNumElements() { return numElements; }
     
 private:
     float minDegreeX;
@@ -46,6 +47,7 @@ private:
     float xCellSize;
     float yCellSize;
     int N;
+    long numElements;
     vector< pair<float, float> > elementList;
     vector< Point > points;
 

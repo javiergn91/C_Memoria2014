@@ -111,6 +111,7 @@ void Relation2D::ReadBinaryFile(const char* filename)
   file.read((char*)&intAux, sizeof(int));
   file.read((char*)&longAux, sizeof(long int));
   
+  numElements = longAux;
   //cout << intAux << endl;
   //cout << longAux << endl;
   

@@ -160,6 +160,20 @@ void PrintAllQuadboxes(int x1, int y1, int x2, int y2, int amount)
   PrintAllQuadboxes((x1 + x2) / 2 + 1, (y1 + y2) / 2 + 1, x2, y2, amount - 4);
 }
 
+QuadCodeStructure* GetStructureFromBinFile(const char* filename)
+{
+  QuadCodeStructure* structure = new QuadCodeStructure();
+   
+  Trie relation2DTrie;
+  relation2D.ReadBinaryFile(filename);
+  relation2D.FillTriePointsDefined(&relation2DTrie);
+  relation2DTrie.CalculateNumberOfLeafsOfEachNode();
+  relation2DTrie.BuildPathDecomposition(structure);
+  structure->setQuadCodeSize(relation2D.GetQuadCodeSize());  
+
+  return structure;
+}
+
 int main(int argc, char** argv)
 {
   if(argc <= 1)
@@ -179,6 +193,7 @@ int main(int argc, char** argv)
     cout << "-RangeEmptyQuery binaryfilename: (x1, y1); (x2, y2) until end of file is reached." << endl << endl;
     cout << "-Size binaryfilename: Size of the structure (bitmaps + rank/select)" << endl << endl;
     cout << "-Info binaryfilename: Size of each bitmap, number of 1's and 0's of each bitmap." << endl << endl;
+    cout << "-RebuildTreeCheckPoint binaryfilename newbinaryfilename: Read a binary dataset and write it again into newbinaryfilename using CheckPoint operation." << endl << endl;
     
     return 0;
   }
@@ -297,17 +312,51 @@ int main(int argc, char** argv)
     PrintAllQuadboxes(0, 0, N - 1, N - 1, atoi(argv[3]));
   }
   
+  if(strcmp(argv[1], "-RebuildTreeCheckPoint") == 0)
+  {
+      ofstream myFile(argv[3], ios::out | ios::binary);
+    
+      QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
+      int N = 1 << (relation2D.GetQuadCodeSize() / 2);
+      long numElements = relation2D.getNumElements();
+      myFile.write((char*)&N, sizeof(int));
+      myFile.write((char*)&numElements, sizeof(long));
+      
+      for(int i = 0; i < N; i++)
+      {	
+	int nNode = -(i + 1);
+	myFile.write((char*)&nNode, sizeof(int));
+	for(int j = 0; j < N; j++)
+	{
+	  int n = j + 1;
+	  //myFile.write((char*)&n, sizeof(int));
+	  
+	  BitmapWrapper bw;
+	  Utils::CreateQuadCode(j, i, &bw, relation2D.GetQuadCodeSize());
+	  
+	  if(structure->CheckBitmap(bw.bitmap, relation2D.GetQuadCodeSize(), NULL))
+	  {
+	      myFile.write((char*)&n, sizeof(int));
+	      cout << "(" << j << ", " << i << ") found." << endl;
+	  }
+	}
+      }
+      
+      myFile.close();
+  }
+  
+  //NOT FULLY IMPLEMENTED.
   if(strcmp(argv[1], "-RangeReporting") == 0)
   {
-    QuadCodeStructure* structure = new QuadCodeStructure();
-    
+    QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
+    /*
     Trie relation2DTrie;
     relation2D.ReadBinaryFile(argv[2]);
     relation2D.FillTriePointsDefined(&relation2DTrie);
     relation2DTrie.CalculateNumberOfLeafsOfEachNode();
     relation2DTrie.BuildPathDecomposition(structure);
     structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
-    
+    */
     structure->GetPoints(0, 0, 16383, 16383);
     structure->PrintPointList();
     //cout << "Range Reporting" << endl;
