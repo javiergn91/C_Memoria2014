@@ -297,6 +297,25 @@ int main(int argc, char** argv)
     PrintAllQuadboxes(0, 0, N - 1, N - 1, atoi(argv[3]));
   }
   
+  if(strcmp(argv[1], "-RangeReporting") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    
+    Trie relation2DTrie;
+    relation2D.ReadBinaryFile(argv[2]);
+    relation2D.FillTriePointsDefined(&relation2DTrie);
+    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
+    relation2DTrie.BuildPathDecomposition(structure);
+    structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
+    
+    structure->GetPoints(0, 0, 16383, 16383);
+    structure->PrintPointList();
+    //cout << "Range Reporting" << endl;
+    //RunEmptyQueryTest(structure);
+    
+    delete structure;       
+  }
+  
   /*
     parseTXTFile("Test/SanMarino.txt");
     
