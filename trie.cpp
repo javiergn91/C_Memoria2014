@@ -10,6 +10,8 @@ using namespace std;
 #define ONE true
 #define ZERO false
 
+#include <BitSequenceRG.h>
+
 Trie::Trie()
 {
     root = new TrieNode();
@@ -171,11 +173,22 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
       }
     }
     
-    structure->setPathBitmap(new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE));
-    structure->setPathLenBitmap(new SPBitmap(pathLens, pathLensAux.size(), pathLenBitSequence));
-    structure->setPathNextBitmap(new SPBitmap(pathNexts, pathNextsAux.size(), pathNextBitSequence));
+    
+    //structure->setPathBitmap(new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE));
+    //structure->setPathLenBitmap(new SPBitmap(pathLens, pathLensAux.size(), pathLenBitSequence));
+    //structure->setPathNextBitmap(new SPBitmap(pathNexts, pathNextsAux.size(), pathNextBitSequence));
     
     //cout << "dasdsa" << endl;
+    
+    structure->pathBitmap = new SPBitmap();
+    structure->pathBitmap->bitmap = paths;
+    structure->pathBitmap->len = pathsAux.size();
+    
+    structure->pathNextBitmap = new SPBitmap();
+    structure->pathNextBitmap->bitSeq = new BitSequenceRRR(pathNexts, pathNextsAux.size());
+    
+    structure->pathLenBitmap = new SPBitmap();
+    structure->pathLenBitmap->bitSeq = new BitSequenceRRR(pathLens, pathLensAux.size());
     
     //pathBitmap = new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE);
     //pathLenBitmap = new SPBitmap(pathLens, pathLensAux.size(), BITSEQ_RRR);

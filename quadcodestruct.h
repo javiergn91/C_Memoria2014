@@ -34,15 +34,13 @@ public:
     
     int quadCodeSize;
     
-private:
-    int pointListSize;
-    int* pointList[2];
-  
-    //Build Path Decomposition bitmaps (NULL if BuildPathDecomposition() method is not executed first)
     SPBitmap* pathBitmap;
     SPBitmap* pathLenBitmap;
     SPBitmap* pathNextBitmap;
     
+private:
+    int pointListSize;
+    int* pointList[2];
     
     void GetQuad(int pos, int parentCode, int bitsRemaining);
 };
