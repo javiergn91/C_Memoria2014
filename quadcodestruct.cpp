@@ -114,7 +114,9 @@ bool QuadCodeStructure::RangeEmptyQuery(Point upperLeftPoint, Point bottomRightP
     return CheckBitmap(P1.bitmap, quadCodeSize, NULL);
   }
   
+  
   uint word = P1.bitmap[0] & ~(~0 << (nBits));
+  
   /*
   cout << endl;
   for(int i = 0; i < quadCodeSize; i++) cout << bitget(P1.bitmap, i); cout << endl;
@@ -251,11 +253,14 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
   while(true)
   {
     int position = pathBitmap->XOR(bitmap, currPos, len);
-
+    
     //cout << "Position: " << position << endl;
     
     if(position == -1)
     {
+      if(pathPos != NULL)
+	*pathPos = currPos + len - 1;
+      //cout << "Path pos: " << *pathPos << endl;
       //cout << "true" << endl;
       return true;
     }

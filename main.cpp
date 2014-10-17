@@ -115,7 +115,7 @@ void RunEmptyQueryTest(QuadCodeStructure* structure)
     cout << x1 << " " << y1 << " " << x2 << " " << y2 << ": ";
     
     bool bResult = structure->RangeEmptyQuery(Point(x1, y1), Point(x2, y2));
-    
+    /*
     int n = 0;
     for(int k = 0; k < (int)relation2D.GetPointVector().size(); k++)
     {
@@ -138,6 +138,8 @@ void RunEmptyQueryTest(QuadCodeStructure* structure)
       cout << "OK! => " << ((bResult) ? "Y" : "N") << endl;
     
     cout << endl;
+    */
+    cout << ((bResult) ? "Y" : "N") << endl;
   }
 }
 
@@ -175,7 +177,7 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 }
 
 int main(int argc, char** argv)
-{
+{	
   if(argc <= 1)
   {
     cout << "--help to view the command list" << endl;
@@ -188,9 +190,9 @@ int main(int argc, char** argv)
     cout << "-rbin filename: Read a binary file containing an adjacency list." << endl << endl;
     cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
     cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
-    cout << "-CheckPoint binaryfilename: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
+    cout << "-CheckPoint name: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
     cout << "-CreateTestForRangeEmptyQuery binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
-    cout << "-RangeEmptyQuery binaryfilename: (x1, y1); (x2, y2) until end of file is reached." << endl << endl;
+    cout << "-RangeEmptyQuery name: (x1, y1); (x2, y2) until end of file is reached." << endl << endl;
     cout << "-Size binaryfilename: Size of the structure (bitmaps + rank/select)" << endl << endl;
     cout << "-Info binaryfilename: Size of each bitmap, number of 1's and 0's of each bitmap." << endl << endl;
     cout << "-RebuildTreeCheckPoint binaryfilename newbinaryfilename: Read a binary dataset and write it again into newbinaryfilename using CheckPoint operation." << endl << endl;
@@ -263,13 +265,16 @@ int main(int argc, char** argv)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();
     
+    structure->Load(argv[2]);
+    
+    /*
     Trie relation2DTrie;
     relation2D.ReadBinaryFile(argv[2]);
     relation2D.FillTriePointsDefined(&relation2DTrie);
     relation2DTrie.CalculateNumberOfLeafsOfEachNode();
     relation2DTrie.BuildPathDecomposition(structure);
     structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
-    
+    */
     RunEmptyQueryTest(structure);
     
     delete structure;   
@@ -328,8 +333,10 @@ int main(int argc, char** argv)
   {
       ofstream myFile(argv[3], ios::out | ios::binary);
     
-      QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
-      int N = 1 << (relation2D.GetQuadCodeSize() / 2);
+      QuadCodeStructure* structure = new QuadCodeStructure();
+      structure->Load(argv[2]);  
+      
+      int N = 1 << (structure->quadCodeSize / 2);
       long numElements = relation2D.getNumElements();
       myFile.write((char*)&N, sizeof(int));
       myFile.write((char*)&numElements, sizeof(long));
@@ -344,23 +351,32 @@ int main(int argc, char** argv)
 	  //myFile.write((char*)&n, sizeof(int));
 	  
 	  BitmapWrapper bw;
-	  Utils::CreateQuadCode(j, i, &bw, relation2D.GetQuadCodeSize());
+	  Utils::CreateQuadCode(j, i, &bw, structure->quadCodeSize);
 	  
-	  if(structure->CheckBitmap(bw.bitmap, relation2D.GetQuadCodeSize(), NULL))
+	  if(structure->CheckBitmap(bw.bitmap, structure->quadCodeSize, NULL))
 	  {
 	      myFile.write((char*)&n, sizeof(int));
-	      cout << "(" << j << ", " << i << ") found." << endl;
+	      //cout << "(" << j << ", " << i << ") found." << endl;
 	  }
 	}
       }
       
+      delete structure;
       myFile.close();
   }
   
   //NOT FULLY IMPLEMENTED.
   if(strcmp(argv[1], "-RangeReporting") == 0)
   {
-    QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
+    //QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
+    
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    structure->Load(argv[2]);
+    
+    //RunCheckPointTest(structure);
+    
+    //delete structure;
+    
     /*
     Trie relation2DTrie;
     relation2D.ReadBinaryFile(argv[2]);
