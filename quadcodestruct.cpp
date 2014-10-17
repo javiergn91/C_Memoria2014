@@ -22,6 +22,74 @@ void QuadCodeStructure::PrintBitmaps()
   pathLenBitmap->PrintBitmap(-1); cout << endl << endl;
 }
 
+void QuadCodeStructure::Save(const char* filename)
+{
+  string filenameStr = filename;
+  ofstream pathFile((filenameStr + ".path").c_str(), ios::binary);
+  ofstream pathNextFile((filenameStr + ".nextpath").c_str());
+  ofstream pathLenFile((filenameStr + ".lenpath").c_str());
+  
+  cout << quadCodeSize << endl;	
+  cout << pathBitmap->len << endl;
+  
+  pathFile.write((char*)&quadCodeSize, sizeof(int));
+  pathFile.write((char*)&pathBitmap->len, sizeof(int));
+  //pathFile.write((char*)pathBitmap->bitmap, uint_len(pathBitmap->len, 1));
+  
+  int bytes = uint_len(pathBitmap->len, 1);
+  
+  for(int i = 0; i < bytes; i++)
+  {
+    pathFile.write((char*)&pathBitmap->bitmap[i], sizeof(uint));
+    //cout << (uint)pathBitmap->bitmap[i] << endl;
+  }
+  
+  pathNextBitmap->bitSeq->save(pathNextFile);
+  pathLenBitmap->bitSeq->save(pathLenFile);
+  
+  pathFile.close();
+  pathNextFile.close();
+  pathLenFile.close();
+}
+
+void QuadCodeStructure::Load(const char* filename)
+{ 
+  string filenameStr = filename;
+  ifstream pathFile((filenameStr + ".path").c_str(), ios::binary);
+  ifstream pathNextFile((filenameStr + ".nextpath").c_str());
+  ifstream pathLenFile((filenameStr + ".lenpath").c_str());
+  
+  pathBitmap = new SPBitmap();
+  pathNextBitmap = new SPBitmap();
+  pathLenBitmap = new SPBitmap();
+ 
+  pathFile.read((char*)&quadCodeSize, sizeof(int));
+  pathFile.read((char*)&pathBitmap->len, sizeof(int));
+  //cout << "Quadcode size: " << quadCodeSize << endl;
+  //cout << "Len: " << pathBitmap->len << endl;
+  
+  int bytes = uint_len(pathBitmap->len, 1);
+  pathBitmap->bitmap = new uint[bytes];
+  
+  //cout << "Bytes: " << bytes << endl;
+  
+  //pathFile.read((char*)pathBitmap->bitmap, bytes);
+  
+  for(int i = 0; i < bytes; i++)
+  {
+    pathFile.read((char*)&pathBitmap->bitmap[i], sizeof(int));
+    //cout << (uint)pathBitmap->bitmap[i] << endl;
+  }
+  
+
+  pathNextBitmap->bitSeq = BitSequence::load(pathNextFile);
+  pathLenBitmap->bitSeq = BitSequence::load(pathLenFile);
+  
+  pathFile.close();
+  pathNextFile.close();
+  pathLenFile.close();  
+}
+
 bool QuadCodeStructure::RangeEmptyQuery(Point upperLeftPoint, Point bottomRightPoint)
 {
   BitmapWrapper P1, P2;
@@ -166,6 +234,9 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
   pointList[0] = new int[numPoints];
   pointList[1] = new int[numPoints];
   pointListSize = 0;
+  
+  Utils::CreateQuadCode(x1, y1, &quadcode1, quadCodeSize);
+  Utils::CreateQuadCode(x2, y2, &quadcode2, quadCodeSize);
   //cout << numPoints << endl;
   
   GetQuad(0, 0, quadCodeSize);
@@ -190,8 +261,9 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
     }
     else
     {
-	uint bit = pathNextBitmap->GetBitAt(position);
-
+	//uint bit = pathNextBitmap->GetBitAt(position);
+	uint bit = (pathNextBitmap->bitSeq->access(position)) ? 1 : 0;
+      
 	if(bit == 1)
 	{
 	  len -= (position + 1 - currPos);
@@ -220,8 +292,12 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 	}
 	else if(bit == 1)
 	{
-	  int numOnes = pathNextBitmap->Rank(1, position); //cout << "ONES: " << numOnes << endl;
-	  currPos = pathLenBitmap->Select(1, numOnes) + 1;
+	  //int numOnes = pathNextBitmap->Rank(1, position); //cout << "ONES: " << numOnes << endl;
+	  //currPos = pathLenBitmap->Select(1, numOnes) + 1;
+	  
+	  int numOnes = pathNextBitmap->bitSeq->rank1(position);//->Rank(1, position); //cout << "ONES: " << numOnes << endl;
+	  currPos = pathLenBitmap->bitSeq->select1(numOnes) + 1; //Select(1, numOnes) + 1;
+	  
 	  //cout << "currPos: " << currPos << endl;
 	}
     }

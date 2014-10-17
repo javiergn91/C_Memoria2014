@@ -15,13 +15,18 @@ using namespace cds_static;
 
 class SPBitmap {
 private:
+  //unsigned int* bitmap;
+  //int len;
+  
+  //BitSequence* bitSeq;
+  
+public:
+  BitSequence* bitSeq;
   unsigned int* bitmap;
   int len;
   
-  BitSequence* bitSeq;
-  
-public:
   SPBitmap(unsigned int* bitmap, int len, BITSEQ seq);
+  SPBitmap();
   unsigned int XOR(unsigned int op, int initBitPos, int leftZeroes);
   int XOR(uint* op, int initBitPos, int queryLen);
   

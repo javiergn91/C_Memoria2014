@@ -74,7 +74,7 @@ void auxFunc(Trie* t, int i1, int i2, int i3, int i4) {
 }
 
 void RunCheckPointTest(QuadCodeStructure* structure)
-{  
+{   
   int x, y;
   BitmapWrapper bitW;
   
@@ -82,10 +82,10 @@ void RunCheckPointTest(QuadCodeStructure* structure)
   
   while(cin >> x >> y)
   {
-    Utils::CreateQuadCode(x, y, &bitW, relation2D.GetQuadCodeSize());
+    Utils::CreateQuadCode(x, y, &bitW, structure->quadCodeSize);
  
     bool b1 = structure->CheckBitmap(bitW.bitmap, bitW.len, NULL);
-
+    
     if(!bOk)
     {
       cout << "Error!" << endl;
@@ -194,7 +194,7 @@ int main(int argc, char** argv)
     cout << "-Size binaryfilename: Size of the structure (bitmaps + rank/select)" << endl << endl;
     cout << "-Info binaryfilename: Size of each bitmap, number of 1's and 0's of each bitmap." << endl << endl;
     cout << "-RebuildTreeCheckPoint binaryfilename newbinaryfilename: Read a binary dataset and write it again into newbinaryfilename using CheckPoint operation." << endl << endl;
-    
+    cout << "-CreateStructBin binaryfilename name: Create the structure and store it in three binary files name.path, name.nextpath, name.lenpath" << endl << endl;
     return 0;
   }
   
@@ -229,16 +229,28 @@ int main(int argc, char** argv)
     
     return 0;
   }
+  
+  if(strcmp(argv[1], "-CreateStructBin") == 0)
+  {
+    QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
+    
+    structure->Save(argv[3]);
+    
+    delete structure;    
+  }
+  
+  if(strcmp(argv[1], "-LoadStruct") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    structure->Load(argv[2]);
+    
+    delete structure;    
+  }
  
   if(strcmp(argv[1], "-CheckPoint") == 0)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();
-    
-    Trie relation2DTrie;
-    relation2D.ReadBinaryFile(argv[2]);
-    relation2D.FillTriePointsDefined(&relation2DTrie);
-    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
-    relation2DTrie.BuildPathDecomposition(structure);
+    structure->Load(argv[2]);
     
     RunCheckPointTest(structure);
     

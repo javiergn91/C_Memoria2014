@@ -253,7 +253,7 @@ void Relation2D::PrintPointList()
 
 void Relation2D::FillTriePointsDefined(Trie* trie)
 {
-    numBits = bits(N) * 2;
+    numBits = bits(N - 1) * 2;
     vector<bool> quadcode;
     
     for(int i = 0; i < (int)points.size(); i++)

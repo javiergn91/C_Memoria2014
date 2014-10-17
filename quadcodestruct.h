@@ -29,6 +29,11 @@ public:
     
     void PrintPointList();
     
+    void Save(const char* filename);
+    void Load(const char* filename);
+    
+    int quadCodeSize;
+    
 private:
     int pointListSize;
     int* pointList[2];
@@ -37,7 +42,7 @@ private:
     SPBitmap* pathBitmap;
     SPBitmap* pathLenBitmap;
     SPBitmap* pathNextBitmap;
-    int quadCodeSize;
+    
     
     void GetQuad(int pos, int parentCode, int bitsRemaining);
 };

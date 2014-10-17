@@ -13,6 +13,8 @@ SPBitmap::SPBitmap(unsigned int* bitmap, int len, BITSEQ seq)
   this->bitmap = bitmap;
   this->len = len;
   
+  //cout << len << endl;
+  
   if(seq == BITSEQ_NONE)
   {
     bitSeq = NULL;
@@ -25,6 +27,11 @@ SPBitmap::SPBitmap(unsigned int* bitmap, int len, BITSEQ seq)
   {
     bitSeq = new BitSequenceSDArray(bitmap, len);
   }
+}
+
+SPBitmap::SPBitmap()
+{
+  
 }
 
 int SPBitmap::NumberOfOnes()
@@ -188,7 +195,8 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
       //delete this.
       //initBitPos = 0;
       
-      return floor(log2(failPosition)) + initBitPos;
+      return bits(failPosition) + initBitPos - 1;
+      //return floor(log2(failPosition)) + initBitPos;
     }
     
     return 0;
