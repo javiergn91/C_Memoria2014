@@ -137,7 +137,7 @@ void QuadCodeStructure::GetQuad(int pos, int parentCode, int bitsRemaining)
   bool bAddMult = false;
   
   int currParentCode = parentCode;
-  //cout << "bits: " << bitsRemaining << endl;
+  //cout << "bits: " << bitsRemaining << ", pos: " << pos << endl;
   for(int i = bitsRemaining + pos - 1; i >= pos; i--)
   { 
     int j = pos + (bitsRemaining + pos - 1) - i;;
@@ -149,7 +149,7 @@ void QuadCodeStructure::GetQuad(int pos, int parentCode, int bitsRemaining)
 	parentCode |= 1;
     }
     
-    if(pathNextBitmap->GetBitAt(j))
+    if(pathNextBitmap->bitSeq->access(j))
     {
       int lastBit = parentCode & 1;
       int newParentCode = parentCode;
@@ -161,8 +161,8 @@ void QuadCodeStructure::GetQuad(int pos, int parentCode, int bitsRemaining)
       {
 	newParentCode |= 1;
       }
-      int newPos = pathLenBitmap->Select(1, pathNextBitmap->Rank(1, j)) + 1; 
-      
+      //int newPos = pathLenBitmap->Select(1, pathNextBitmap->Rank(1, j)) + 1; 
+      int newPos = pathLenBitmap->bitSeq->select1(pathNextBitmap->bitSeq->rank1(j)) + 1;
       //cout << "newPos: " << newPos << endl;
       //cout << "D: " << newPos << " " << bitsRemaining - j - 1 + pos << endl;
       GetQuad(newPos, newParentCode, bitsRemaining - j - 1 + pos);
@@ -229,9 +229,27 @@ void QuadCodeStructure::PrintPointList()
 
 void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
 {
+  if(x1 == x2 && y1 == y2)
+  {
+    BitmapWrapper bw;
+    Utils::CreateQuadCode(x1, y1, &bw, quadCodeSize);
+    if(CheckBitmap(bw.bitmap, quadCodeSize, NULL))
+    {
+      pointList[0] = new int[1];
+      pointList[1] = new int[1];
+      pointList[0][0] = x1;
+      pointList[1][0] = y1;
+      pointListSize = 1;
+    }
+    
+    return;
+  }
+  
   BitmapWrapper quadcode1, quadcode2;
   
-  int numPoints = pathNextBitmap->Rank(1, pathNextBitmap->GetLen() - 1) + 1;
+  int numPoints = pathNextBitmap->bitSeq->countOnes() - 1;
+  
+  //cout << "NumPoints: " << numPoints << endl;
   
   pointList[0] = new int[numPoints];
   pointList[1] = new int[numPoints];
@@ -240,8 +258,43 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
   Utils::CreateQuadCode(x1, y1, &quadcode1, quadCodeSize);
   Utils::CreateQuadCode(x2, y2, &quadcode2, quadCodeSize);
   //cout << numPoints << endl;
+  //pathBitmap->PrintBitmap(-1); cout << endl;
   
-  GetQuad(0, 0, quadCodeSize);
+  
+  //for(int i = 0; i < quadCodeSize; i++) cout << bitget(quadcode1.bitmap, i); cout << endl;
+  //for(int i = 0; i < quadCodeSize; i++) cout << bitget(quadcode2.bitmap, i); cout << endl;
+  
+  quadcode1.bitmap[0] = quadcode1.bitmap[0] ^ quadcode2.bitmap[0];
+  quadcode1.bitmap[0] &= ~(quadcode1.bitmap[0] - 1);
+  
+  int failAt = bits(quadcode1.bitmap[0]) - 1;
+  
+  quadcode1.bitmap[0] = quadcode2.bitmap[0] & ~(~0 << failAt);
+  
+  //cout << "failtAt = " << failAt << endl;
+  
+  //for(int i = 0; i < quadCodeSize; i++) cout << bitget(quadcode1.bitmap, i); cout << endl;
+  
+  uint parentCode = 0;
+  for(int j = 0, i = failAt - 1; j < failAt; j++, i--)
+  {
+    //cout << "Bit: " << bitget(quadcode1.bitmap, j) << " " << i << endl;
+    parentCode += (bitget(quadcode1.bitmap, j)) ? (1 << i) : 0;
+  }
+  
+  int p = 0;
+  
+  if(!CheckBitmap(quadcode1.bitmap, failAt, &p))
+  {
+      return;
+  }
+  
+  //cout << "bitcode: " << quadcode1.bitmap[0] << endl;
+  //cout << "p: " << p << endl;
+  
+
+  //cout << "Parent Code: " << parentCode << endl;
+  GetQuad(p + 1, parentCode, quadCodeSize - failAt);
 }
 
 bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
@@ -293,6 +346,12 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 	}
 	else if(bit == 1 && len <= 0)
 	{
+	  if(pathPos != NULL)
+	  {
+	    int numOnes = pathNextBitmap->bitSeq->rank1(position);//->Rank(1, position); //cout << "ONES: " << numOnes << endl;
+	    *pathPos = pathLenBitmap->bitSeq->select1(numOnes);
+	  }
+	    //cout << "sdas" << endl;
 	  return true;
 	}
 	else if(bit == 1)

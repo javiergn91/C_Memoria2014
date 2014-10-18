@@ -177,7 +177,31 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 }
 
 int main(int argc, char** argv)
-{	
+{
+  /*
+  ofstream file("ToyExample.bin", ios::binary);
+  int n = 8;
+  long m = 6;
+  file.write((char*)&n, sizeof(int));
+  file.write((char*)&m, sizeof(long));
+  
+  n = -1; file.write((char*)&n, sizeof(int));
+  n = 8;  file.write((char*)&n, sizeof(int));
+  n = -2; file.write((char*)&n, sizeof(int));
+  n = 2;  file.write((char*)&n, sizeof(int));
+  n = 8;  file.write((char*)&n, sizeof(int));
+  n = -3; file.write((char*)&n, sizeof(int));
+  n = 4;  file.write((char*)&n, sizeof(int));
+  n = 8;  file.write((char*)&n, sizeof(int)); 
+  n = -4; file.write((char*)&n, sizeof(int));
+  n = -5; file.write((char*)&n, sizeof(int));
+  n = -6; file.write((char*)&n, sizeof(int));
+  n = 3;  file.write((char*)&n, sizeof(int));
+  n = -7; file.write((char*)&n, sizeof(int));
+  n = -8; file.write((char*)&n, sizeof(int));
+  
+  file.close();
+  */
   if(argc <= 1)
   {
     cout << "--help to view the command list" << endl;
@@ -385,8 +409,12 @@ int main(int argc, char** argv)
     relation2DTrie.BuildPathDecomposition(structure);
     structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
     */
-    structure->GetPoints(0, 0, 16383, 16383);
-    structure->PrintPointList();
+    int x1, y1, x2, y2;
+    while(cin >> x1 >> y1 >> x2 >> y2)
+    {
+      structure->GetPoints(x1, y1, x2, y2);
+      structure->PrintPointList();
+    }
     //cout << "Range Reporting" << endl;
     //RunEmptyQueryTest(structure);
     
