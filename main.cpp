@@ -337,8 +337,12 @@ int main(int argc, char** argv)
     cout << "Next bitmap size: " << structure->getPathNextBitmap()->GetSize() << endl;
     cout << "Len bitmap size: " << structure->getPathLenBitmap()->GetSize() << endl << endl;
     cout << "----- Number of (0/1) ------" << endl;
-    cout << "Next bitmap: (" << structure->getPathNextBitmap()->NumberOfZeros() << "/" << structure->getPathNextBitmap()->NumberOfOnes() << ")" << endl;
-    cout << "Len bitmap: (" << structure->getPathLenBitmap()->NumberOfZeros() << "/" << structure->getPathLenBitmap()->NumberOfOnes() << ")" << endl;
+    //cout << "Next bitmap: (" << structure->getPathNextBitmap()->NumberOfZeros() << "/" << structure->getPathNextBitmap()->NumberOfOnes() << ")" << endl;
+    //cout << "Len bitmap: (" << structure->getPathLenBitmap()->NumberOfZeros() << "/" << structure->getPathLenBitmap()->NumberOfOnes() << ")" << endl;
+    
+    cout << "Next bitmap: (" << structure->pathNextBitmap->bitSeq->countZeros() << "/" << structure->pathNextBitmap->bitSeq->countOnes() << ")" << endl;
+    cout << "Len bitmap: (" << structure->pathLenBitmap->bitSeq->countZeros() << "/" << structure->pathLenBitmap->bitSeq->countOnes() << ")" << endl;
+    
     
     delete structure;
     

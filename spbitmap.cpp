@@ -31,7 +31,7 @@ SPBitmap::SPBitmap(unsigned int* bitmap, int len, BITSEQ seq)
 
 SPBitmap::SPBitmap()
 {
-  
+  bitSeq = NULL;
 }
 
 int SPBitmap::NumberOfOnes()

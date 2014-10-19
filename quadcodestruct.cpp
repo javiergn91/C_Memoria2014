@@ -374,6 +374,7 @@ int QuadCodeStructure::GetBytes()
 {
   int result = 0;
   
+  //cout << pathBitmap->len << endl;
   result += pathBitmap->GetSize();
   result += pathNextBitmap->GetSize();
   result += pathLenBitmap->GetSize();
