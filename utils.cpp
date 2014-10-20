@@ -92,6 +92,8 @@ void Utils::CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadL
   bitmapWrapper->len = quadLength;//(floor(log2(x)) + 1) + (floor(log2(y) + 1));
   bitmapWrapper->bitmap = new uint[uint_len(bitmapWrapper->len, 1)];
   
+  //cout << uint_len(bitmapWrapper->len, 1) << endl;
+  
   /*
   for(int i = quadLength - 1; i >= 0; i--)
   {
@@ -117,7 +119,15 @@ void Utils::CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadL
   quadLength--;
   
   //cout << quadLength << endl;
+  /*
+  while(y)
+  {
+      cout << y % 2;
+      y /= 2;
+  }
   
+  cout << endl;
+  */
   while(x != 0 || y != 0)
   {
     //cout << x << " " << y << endl;

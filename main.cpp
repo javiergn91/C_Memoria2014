@@ -178,6 +178,9 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 
 int main(int argc, char** argv)
 {
+  BitmapWrapper bw;
+  Utils::CreateQuadCode(21603134, 2796050, &bw, 52);
+  
   /*
   ofstream file("ToyExample.bin", ios::binary);
   int n = 8;

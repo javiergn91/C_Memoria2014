@@ -190,17 +190,132 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
 }
 */
 
-int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
+int SPBitmap::XOR(uint op, int initBitPos, int queryLen)
 {
     int initIndex = initBitPos / W;
     int finalIndex = (initBitPos + queryLen) / W;
-    
+    /*
     cout << queryLen << endl;
     for(int i = 0; i < queryLen; i++)
     {
 	cout << bitget(op, i);
     }
     cout << endl;
+    */
+    
+    unsigned long result = 0; 
+    
+    if(initIndex == finalIndex) 
+    {
+      uint word = bitmap[initIndex];
+      uint wordOP = op;
+      /*
+      for(int i = 0; i < W; i++)
+      {
+	cout << bitget(&word, i);
+      }
+      cout << endl;
+      
+      for(int i = 0; i < queryLen; i++)
+      {
+	cout << bitget(&wordOP, i);
+      }
+      cout << endl;
+      */
+      
+      wordOP = (wordOP & ~(~0 << queryLen));
+      word = ((word >> (initBitPos % W)) & ~(~0 << queryLen));
+      result = word ^ wordOP;
+    }
+    else
+    {
+      cout << "Second case" << endl;
+      
+      bool bDebug = false;
+      
+      unsigned long word1 = bitmap[initIndex];
+      unsigned long word2 = bitmap[finalIndex];
+      
+      if(bDebug)
+      {
+	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
+	cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      }
+      
+      int word1Size = W - initBitPos % W;
+      
+      word1 = (word1 >> (initBitPos % W)) & ~(~0 << word1Size);
+      
+      int word2Size = queryLen - word1Size;
+      
+      //cout << "word1Size: " << W - word2Size << endl;
+      
+      //word2 &= ~(~0 << (W - word2Size));
+      word2 &= ~(~0 << (word2Size));
+      //word2 >>= (len - word1Size);
+      
+      if(bDebug)
+      {
+	cout << "===" << endl;
+	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
+	cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      }
+      
+      //cout << word2Size << endl;
+      //word1 = (word1 << word1Size) | word2;
+      word2 <<= word1Size;
+      
+      word1 |= word2;
+      
+      if(bDebug)
+      {
+	cout << "===" << endl;
+	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
+	//cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+      }
+      
+      uint wordOP = op;
+      wordOP = (wordOP & ~(~0 << queryLen));
+      
+      if(bDebug)
+      {
+	//cout << "===" << endl;
+	cout << "Op: "; for(int i = 0; i < W; i++) cout << bitget(&op, i); cout << endl;
+      }
+      result = word1 ^ wordOP;
+    }
+    
+    if(result == 0)
+    {
+      return -1;
+      //cout << "OK!" << endl;
+    }
+    else
+    {
+      unsigned int failPosition = (result & ~(result - 1)); 
+      
+      //delete this.
+      //initBitPos = 0;
+      
+      return bits(failPosition) + initBitPos - 1;
+      //return floor(log2(failPosition)) + initBitPos;
+    }
+    
+    return 0;
+}
+
+int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
+{
+    int initIndex = initBitPos / W;
+    int finalIndex = (initBitPos + queryLen) / W;
+    /*
+    cout << queryLen << endl;
+    for(int i = 0; i < queryLen; i++)
+    {
+	cout << bitget(op, i);
+    }
+    cout << endl;
+    */
     
     unsigned long result = 0; 
     

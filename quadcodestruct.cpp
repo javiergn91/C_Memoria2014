@@ -305,8 +305,22 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
   //cout << endl;
   while(true)
   {
-    int position = pathBitmap->XOR(bitmap, currPos, len);
+    //cout << 
+    int position = 0;
     
+    if(len > W)
+    {
+      position = pathBitmap->XOR(bitmap[0], currPos, W);
+      if(position == -1)
+	position = pathBitmap->XOR(bitmap[1], currPos + W, len - W);
+      
+      if(position != -1)
+	position += W;
+    }
+    else
+    {
+      position = pathBitmap->XOR(bitmap[0], currPos, len);
+    }
     //cout << "Position: " << position << endl;
     
     if(position == -1)
