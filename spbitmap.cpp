@@ -221,7 +221,7 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
     }
     else
     {
-      //cout << "Second case" << endl;
+      cout << "Second case" << endl;
       
       bool bDebug = false;
       
