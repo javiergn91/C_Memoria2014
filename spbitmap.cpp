@@ -195,6 +195,13 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
     int initIndex = initBitPos / W;
     int finalIndex = (initBitPos + queryLen) / W;
     
+    cout << queryLen << endl;
+    for(int i = 0; i < queryLen; i++)
+    {
+	cout << bitget(op, i);
+    }
+    cout << endl;
+    
     unsigned long result = 0; 
     
     if(initIndex == finalIndex) 
