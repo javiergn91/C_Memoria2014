@@ -380,7 +380,8 @@ int main(int argc, char** argv)
       structure->Load(argv[2]);  
       
       int N = 1 << (structure->quadCodeSize / 2);
-      long numElements = relation2D.getNumElements();
+      long numElements = structure->pathNextBitmap->bitSeq->countOnes() + 1;
+      cout << numElements << endl;
       myFile.write((char*)&N, sizeof(int));
       myFile.write((char*)&numElements, sizeof(long));
       
@@ -401,6 +402,8 @@ int main(int argc, char** argv)
 	      myFile.write((char*)&n, sizeof(int));
 	      //cout << "(" << j << ", " << i << ") found." << endl;
 	  }
+	  
+	  delete bw.bitmap;
 	}
       }
       
