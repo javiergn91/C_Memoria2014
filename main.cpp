@@ -338,15 +338,8 @@ int main(int argc, char** argv)
   if(strcmp(argv[1], "-Size") == 0)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();
-    
-    Trie relation2DTrie;
-    relation2D.ReadBinaryFile(argv[2]);
-    relation2D.FillTriePointsDefined(&relation2DTrie);
-    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
-    relation2DTrie.BuildPathDecomposition(structure);
-    
+    structure->Load(argv[2]);
     cout << structure->GetBytes() << endl;
-    
     delete structure;
     
     return 0;
@@ -355,12 +348,7 @@ int main(int argc, char** argv)
   if(strcmp(argv[1], "-Info") == 0)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();
-    
-    Trie relation2DTrie;
-    relation2D.ReadBinaryFile(argv[2]);
-    relation2D.FillTriePointsDefined(&relation2DTrie);
-    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
-    relation2DTrie.BuildPathDecomposition(structure);
+    structure->Load(argv[2]);
     
     cout << "Size(bytes): " << structure->GetBytes() << endl << endl;
     cout << "----- Size -----" << endl;
@@ -368,12 +356,8 @@ int main(int argc, char** argv)
     cout << "Next bitmap size: " << structure->getPathNextBitmap()->GetSize() << endl;
     cout << "Len bitmap size: " << structure->getPathLenBitmap()->GetSize() << endl << endl;
     cout << "----- Number of (0/1) ------" << endl;
-    //cout << "Next bitmap: (" << structure->getPathNextBitmap()->NumberOfZeros() << "/" << structure->getPathNextBitmap()->NumberOfOnes() << ")" << endl;
-    //cout << "Len bitmap: (" << structure->getPathLenBitmap()->NumberOfZeros() << "/" << structure->getPathLenBitmap()->NumberOfOnes() << ")" << endl;
-    
     cout << "Next bitmap: (" << structure->pathNextBitmap->bitSeq->countZeros() << "/" << structure->pathNextBitmap->bitSeq->countOnes() << ")" << endl;
     cout << "Len bitmap: (" << structure->pathLenBitmap->bitSeq->countZeros() << "/" << structure->pathLenBitmap->bitSeq->countOnes() << ")" << endl;
-    
     
     delete structure;
     
