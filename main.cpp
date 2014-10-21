@@ -281,6 +281,34 @@ int main(int argc, char** argv)
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
     
+    structure->pathBitmap->PrintBitmap(-1); cout << endl << endl;
+    
+    int len = structure->pathBitmap->len;
+    for(int i = 0; i < len; i++)
+    {
+	if(structure->pathNextBitmap->bitSeq->access(i))
+	{
+	    cout << "1";
+	}
+	else
+	{
+	    cout << "0";
+	}
+    }
+    cout << endl << endl;
+    
+    for(int i = 0; i < len; i++) 
+    {
+      if(structure->pathLenBitmap->bitSeq->access(i))
+      {
+	cout << "1";
+      }
+      else
+      {
+	 cout << "0";
+      }
+    }
+    cout << endl << endl;
     RunCheckPointTest(structure);
     
     delete structure;

@@ -299,9 +299,20 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
 
 bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 {
-  int currPos = 0;
-  //int lastPosition = 0;
+  //cout << len << endl;
   
+  int currPos = 0;
+  /*
+  for(int i = 0; i < len; i++)
+  {
+      cout << bitget(bitmap, i);
+  }
+  cout << endl;
+  */
+  //pathBitmap->PrintBitmap(-1); cout << endl;
+  
+  //int lastPosition = 0;
+  //cout << "LEN: " << pathNextBitmap->bitSeq->getLength() << endl;
   //cout << endl;
   while(true)
   {
@@ -310,17 +321,48 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
     
     if(len > W)
     {
-      position = pathBitmap->XOR(bitmap[0], currPos, W);
-      if(position == -1)
-	position = pathBitmap->XOR(bitmap[1], currPos + W, len - W);
+      /*
+      cout << len << endl;
+      //cout << "Bitmap[0]: ";
       
-      if(position != -1)
+      for(int i = 0; i < len; i++)
+      {
+	cout << bitget(&bitmap[0], i);
+      }
+      cout << endl;
+      */
+      /*
+      for(int i = 0; i < W; i++)
+      {
+	  cout << bitget(pathBitmap->bitmap, i);
+      }
+      cout << endl;
+      */
+      //cout << "CurrPOS: " << currPos << endl;
+      
+      //cout << bitget(pathBitmap->bitmap, 54) << endl;
+      
+      position = pathBitmap->XOR(bitmap[0], currPos, W);
+      //cout << "POS: " << position << endl;
+      if(position == -1)
+      {
+	//cout << "asd64" << endl;
+	position = pathBitmap->XOR(bitmap[1], currPos + W, len - W);
+	//cout << "POS2: " << position << endl;
+      }
+      /*
+      if(position != -10
 	position += W;
+      */
     }
     else
     {
+      //cout << "asd32" << endl;
       position = pathBitmap->XOR(bitmap[0], currPos, len);
+      //cout << position << endl;
     }
+    
+    //position = pathBitmap->XOR(bitmap[0], currPos, len);
     //cout << "Position: " << position << endl;
     
     if(position == -1)
@@ -334,12 +376,53 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
     else
     {
 	//uint bit = pathNextBitmap->GetBitAt(position);
+      //cout << "position: " << position << endl;
 	uint bit = (pathNextBitmap->bitSeq->access(position)) ? 1 : 0;
       
+	//cout << "bit: " << bit << endl;
+	//cout << "len: " << len << endl;
 	if(bit == 1)
 	{
+	  int offset = (position + 1 - currPos);
+	  
+	  //cout << "offset: " << offset << endl;
+	  
+	  if(offset > W)
+	  {
+	      offset -= W;
+	      bitmap[0] = bitmap[1];
+	  }
+	  
+	  if(len > W)
+	  {
+	    //cout << "len > W" << endl;
+	    bitmap[0] >>= offset;
+	    //cout << "tmp: ";
+	    
+	    bitmap[0] = (bitmap[1] & ~(~0 << (offset))) << (W - offset) | bitmap[0];// | (bitmap[0] >> offset);// (W - offset);
+	    bitmap[1] >>= offset;
+	    /*
+	    for(int i = 0; i < len; i++)
+	      cout << bitget(bitmap, i);
+	    cout << endl;
+	    */
+	  
+            		      
+	  }
+	  else
+	  {
+	    //cout << "Bitmap: "; for(int i = 0; i < len; i++) 
+	    
+	    *bitmap >>= (position + 1 - currPos);
+	  }
+	   
 	  len -= (position + 1 - currPos);
-	  *bitmap >>= (position + 1 - currPos);
+	  /*
+	  cout << "bitmap: ";
+	  for(int i = 0; i < len; i++)
+	    cout << bitget(bitmap, i);
+	  cout << endl;
+	  */
 	  //lastPosition = position + 1;
 	}
 	
