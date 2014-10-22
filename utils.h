@@ -14,6 +14,7 @@ public:
     static void PrintBinary(unsigned int decimalNumber, bool bNormal = false);
     static unsigned int* CreateBitSequence(string str);
     static void CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadLength);
+    static void CreateQC_Old(int x, int y, BitmapWrapper* bitmapWrapper, int quadLength);
 };
 
 #endif // _UTILS_H_

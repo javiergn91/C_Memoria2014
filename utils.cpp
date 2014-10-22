@@ -79,16 +79,8 @@ void Utils::PrintBinary(unsigned int decimalNumber, bool bNormal)
   cout << endl;
 }
 
-void Utils::CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadLength)
+void Utils::CreateQC_Old(int x, int y, BitmapWrapper* bitmapWrapper, int quadLength)
 {
-  //unsigned short x1 = x;
-  //unsigned short y1 = y;
-  /*
-  uint z = MortonTable256[x >> 8]   << 17 | 
-           MortonTable256[y >> 8]   << 16 |
-           MortonTable256[x & 0xFF] <<  1 | 
-           MortonTable256[y & 0xFF];
-  */
   bitmapWrapper->len = quadLength;//(floor(log2(x)) + 1) + (floor(log2(y) + 1));
   bitmapWrapper->bitmap = new uint[uint_len(bitmapWrapper->len, 1)];
   
@@ -118,20 +110,8 @@ void Utils::CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadL
   int tmpL = quadLength;
   quadLength--;
   
-  //cout << quadLength << endl;
-  /*
-  while(y)
-  {
-      cout << y % 2;
-      y /= 2;
-  }
-  
-  cout << endl;
-  */
   while(x != 0 || y != 0)
-  {
-    //cout << x << " " << y << endl;
-    
+  {  
     if(y == 0 || y % 2 == 0) bitclean(bitmapWrapper->bitmap, quadLength);
     else bitset(bitmapWrapper->bitmap, quadLength);
  
@@ -144,20 +124,66 @@ void Utils::CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadL
     quadLength -= 2;
   }
   
-  //cout << quadLength << endl;
   while(quadLength >= 0)
   {
     bitclean(bitmapWrapper->bitmap, quadLength);
     quadLength--;
   }
   
+  return;  
+}
+
+void Utils::CreateQuadCode(int x, int y, BitmapWrapper* bitmapWrapper, int quadLength)
+{
+  //return Utils::CreateQC_Old(x, y, bitmapWrapper, quadLength);
+  
   /*
-  for(int i = 0; i < tmpL; i++)
+  BitmapWrapper bw;
+  Utils::CreateQC_Old(x, y, &bw, quadLength);
+  
+  for(int i = 0; i < quadLength; i++)
   {
-      cout << bitget(bitmapWrapper->bitmap, i);
+      cout << bitget(bw.bitmap, i);
   }
   cout << endl;
   */
-  //bitset(bitmapWrapper->bitmap, 0);
+  unsigned short x1 = x;
+  unsigned short y1 = y;
   
+  unsigned short x2 = x >> 16;
+  unsigned short y2 = y >> 16;
+  
+  unsigned long z1 = MortonTable256[x1 >> 8]   << 17 | 
+		    MortonTable256[y1 >> 8]   << 16 |
+		    MortonTable256[x1 & 0xFF] <<  1 | 
+		    MortonTable256[y1 & 0xFF];
+		    
+  unsigned long z2 = MortonTable256[x2 >> 8]   << 17 | 
+		    MortonTable256[y2 >> 8]   << 16 |
+		    MortonTable256[x2 & 0xFF] <<  1 | 
+		    MortonTable256[y2 & 0xFF];
+	
+  unsigned long t = 0;
+  unsigned long z = z1 & ~(~t << 32) | (z2 << 32); //z2 << 32 || z1; 
+		     
+  //cout << "QuadLength: " << quadLength << endl;
+  
+  bitmapWrapper->len = quadLength;
+  bitmapWrapper->bitmap = new uint[uint_len(bitmapWrapper->len, 1)];
+  
+  for(int i = quadLength - 1; i >= 0; i--)
+  {
+    (z & 1) ? bitset(bitmapWrapper->bitmap, i) : bitclean(bitmapWrapper->bitmap, i);
+    z >>= 1;
+  }
+  /*
+  for(int i = 0; i < quadLength; i++)
+  {
+    cout << bitget(bitmapWrapper->bitmap, i);
+  }
+  cout << endl;
+  
+  cout << "=====" << endl;
+  */
+  return;
 }

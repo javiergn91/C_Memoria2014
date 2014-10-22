@@ -178,9 +178,20 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 
 int main(int argc, char** argv)
 {
-  BitmapWrapper bw;
-  Utils::CreateQuadCode(21603134, 2796050, &bw, 52);
+  	
+  //BitmapWrapper bw;
+  //Utils::CreateQuadCode(3, 2, &bw, 4);
+  //cout << bw.len << endl;
+  //bw.bitmap[0] = (uint)7;
+  /*
+  for(int i = 0; i < bw.len; i++)
+  {
+      cout << bitget(bw.bitmap, i);
+  }
+  cout << endl;
   
+  return 0;
+  */
   /*
   ofstream file("ToyExample.bin", ios::binary);
   int n = 8;
@@ -381,13 +392,15 @@ int main(int argc, char** argv)
       
       int N = 1 << (structure->quadCodeSize / 2);
       long numElements = structure->pathNextBitmap->bitSeq->countOnes() + 1;
-      cout << numElements << endl;
+      //cout << numElements << endl;
       myFile.write((char*)&N, sizeof(int));
+      cout << N << " ";
       myFile.write((char*)&numElements, sizeof(long));
       
       for(int i = 0; i < N; i++)
       {	
 	int nNode = -(i + 1);
+	//cout << nNode << " ";
 	myFile.write((char*)&nNode, sizeof(int));
 	for(int j = 0; j < N; j++)
 	{
@@ -400,7 +413,12 @@ int main(int argc, char** argv)
 	  if(structure->CheckBitmap(bw.bitmap, structure->quadCodeSize, NULL))
 	  {
 	      myFile.write((char*)&n, sizeof(int));
+	      //cout << n << " ";
 	      //cout << "(" << j << ", " << i << ") found." << endl;
+	  } 
+	  else
+	  {
+	      //cout << "(" << j << ", " << i << ") not found." << endl;
 	  }
 	  
 	  delete bw.bitmap;
