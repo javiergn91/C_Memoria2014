@@ -36,6 +36,9 @@ public:
     int getN() { return N; }
     long getNumElements() { return numElements; }
     
+    int N;
+    int universeSize;
+    
 private:
     float minDegreeX;
     float minDegreeY;
@@ -46,7 +49,7 @@ private:
     int numBits;
     float xCellSize;
     float yCellSize;
-    int N;
+    //int N;
     long numElements;
     vector< pair<float, float> > elementList;
     vector< Point > points;

@@ -29,9 +29,11 @@ void QuadCodeStructure::Save(const char* filename)
   ofstream pathNextFile((filenameStr + ".nextpath").c_str());
   ofstream pathLenFile((filenameStr + ".lenpath").c_str());
   
+  cout << universeSize << endl;
   cout << quadCodeSize << endl;	
   cout << pathBitmap->len << endl;
   
+  pathFile.write((char*)&universeSize, sizeof(int));
   pathFile.write((char*)&quadCodeSize, sizeof(int));
   pathFile.write((char*)&pathBitmap->len, sizeof(int));
   //pathFile.write((char*)pathBitmap->bitmap, uint_len(pathBitmap->len, 1));
@@ -62,7 +64,8 @@ void QuadCodeStructure::Load(const char* filename)
   pathBitmap = new SPBitmap();
   pathNextBitmap = new SPBitmap();
   pathLenBitmap = new SPBitmap();
- 
+  
+  pathFile.read((char*)&universeSize, sizeof(int));
   pathFile.read((char*)&quadCodeSize, sizeof(int));
   pathFile.read((char*)&pathBitmap->len, sizeof(int));
   //cout << "Quadcode size: " << quadCodeSize << endl;
@@ -387,7 +390,7 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 	  
 	  //cout << "offset: " << offset << endl;
 	  
-	  if(offset > W)
+	  if(offset >= W)
 	  {
 	      offset -= W;
 	      bitmap[0] = bitmap[1];
@@ -395,17 +398,21 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 	  
 	  if(len > W)
 	  {
-	    //cout << "len > W" << endl;
+	    //cout << "len > W: " << offset << endl;
+	    //for(int i = 0; i < len; i++)
+	    //  cout << bitget(bitmap, i);
+	    //cout << endl;
+	    
 	    bitmap[0] >>= offset;
 	    //cout << "tmp: ";
 	    
 	    bitmap[0] = (bitmap[1] & ~(~0 << (offset))) << (W - offset) | bitmap[0];// | (bitmap[0] >> offset);// (W - offset);
 	    bitmap[1] >>= offset;
-	    /*
-	    for(int i = 0; i < len; i++)
-	      cout << bitget(bitmap, i);
-	    cout << endl;
-	    */
+	    
+	    //for(int i = 0; i < len - offset; i++)
+	    //  cout << bitget(bitmap, i);
+	    //cout << endl;
+	    //cout << "============" << endl;
 	  
             		      
 	  }

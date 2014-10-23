@@ -33,6 +33,7 @@ public:
     void Load(const char* filename);
     
     int quadCodeSize;
+    int universeSize;
     
     SPBitmap* pathBitmap;
     SPBitmap* pathLenBitmap;

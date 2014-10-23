@@ -93,17 +93,23 @@ void RunCheckPointTest(QuadCodeStructure* structure)
       return;
     }
     
+    if(!b1)
+    {
+      cout << "(" << x << ", " << y << ") " << endl;
+    }
+    /*
     cout << "(" << x << ", " << y << ") ";
   
     if(b1)
       cout << "Y" << endl;
     else
       cout << "N" << endl;
+    */
   }
   
   if(bOk)
   {
-    cout << "OK!" << endl;
+    //cout << "OK!" << endl;
   }
 }
 
@@ -168,10 +174,15 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
    
   Trie relation2DTrie;
   relation2D.ReadBinaryFile(filename);
+  
   relation2D.FillTriePointsDefined(&relation2DTrie);
   relation2DTrie.CalculateNumberOfLeafsOfEachNode();
   relation2DTrie.BuildPathDecomposition(structure);
+  
   structure->setQuadCodeSize(relation2D.GetQuadCodeSize());  
+  structure->universeSize = relation2D.N;
+  
+  //cout << "U: " << relation2D.universeSize << endl;
 
   return structure;
 }
@@ -286,12 +297,17 @@ int main(int argc, char** argv)
     
     delete structure;    
   }
- 
-  if(strcmp(argv[1], "-CheckPoint") == 0)
+  
+  if(strcmp(argv[1], "-PrintStructure") == 0)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
+   
+    //cout << structure->pathBitmap->len << endl;
+    //cout << structure->pathNextBitmap->bitSeq->getLength() << endl;
+    //cout << structure->pathLenBitmap->bitSeq->getLength() << endl;
     
+    //return 0;
     structure->pathBitmap->PrintBitmap(-1); cout << endl << endl;
     
     int len = structure->pathBitmap->len;
@@ -320,7 +336,35 @@ int main(int argc, char** argv)
       }
     }
     cout << endl << endl;
+    
+    delete structure;
+  }
+ 
+  if(strcmp(argv[1], "-CheckPoint") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    structure->Load(argv[2]);
+    
     RunCheckPointTest(structure);
+    return 0;
+    
+    BitmapWrapper bw;
+    Utils::CreateQuadCode(191473, 313032, &bw, 38);
+    
+    for(int i = 0; i < 38; i++)
+    {
+	cout << bitget(bw.bitmap, i);
+    }
+    cout << endl;
+    
+    if(structure->CheckBitmap(bw.bitmap, 38, NULL))
+    {
+	cout << "Y" << endl;
+    }
+    else
+    {
+	cout << "N" << endl;
+    }
     
     delete structure;
     
@@ -390,13 +434,14 @@ int main(int argc, char** argv)
       QuadCodeStructure* structure = new QuadCodeStructure();
       structure->Load(argv[2]);  
       
-      int N = 1 << (structure->quadCodeSize / 2);
+      //int N = 1 << (structure->quadCodeSize / 2);
+      int N = structure->universeSize;
       long numElements = structure->pathNextBitmap->bitSeq->countOnes() + 1;
-      //cout << numElements << endl;
+      cout << "N: " << N << ", Num elements: " << numElements << endl;
       myFile.write((char*)&N, sizeof(int));
-      cout << N << " ";
+      //cout << "asdas";
       myFile.write((char*)&numElements, sizeof(long));
-      
+      //return 0;
       for(int i = 0; i < N; i++)
       {	
 	int nNode = -(i + 1);
@@ -414,7 +459,7 @@ int main(int argc, char** argv)
 	  {
 	      myFile.write((char*)&n, sizeof(int));
 	      //cout << n << " ";
-	      //cout << "(" << j << ", " << i << ") found." << endl;
+	      cout << "(" << j << ", " << i << ") found." << endl;
 	  } 
 	  else
 	  {

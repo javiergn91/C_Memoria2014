@@ -116,6 +116,8 @@ void Relation2D::ReadBinaryFile(const char* filename)
   //cout << longAux << endl;
   
   this->N = intAux;
+  universeSize = intAux;
+  //cout << "N: " << intAux << endl;
   
   numBits = bits(this->N) * 2;
   
