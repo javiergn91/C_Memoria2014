@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "quadcodestruct.h"
 #include <string.h>
+#include <stdio.h>
 using namespace std;
 
 Relation2D relation2D;
@@ -437,39 +438,72 @@ int main(int argc, char** argv)
       //int N = 1 << (structure->quadCodeSize / 2);
       int N = structure->universeSize;
       long numElements = structure->pathNextBitmap->bitSeq->countOnes() + 1;
-      cout << "N: " << N << ", Num elements: " << numElements << endl;
+      //cout << "N: " << N << ", Num elements: " << numElements << endl;
       myFile.write((char*)&N, sizeof(int));
       //cout << "asdas";
       myFile.write((char*)&numElements, sizeof(long));
       //return 0;
+      
+      int* tmpArr = new int[N];
+      BitmapWrapper bw;
+      
+      bw.len = structure->quadCodeSize;
+      bw.bitmap = new uint[uint_len(bw.len, 1)];
+  
+      //int cntNNode = 0;
+      //int cnt2 = 1;
+      
+      //int umbral = N / 100;
+      
       for(int i = 0; i < N; i++)
       {	
 	int nNode = -(i + 1);
-	//cout << nNode << " ";
-	myFile.write((char*)&nNode, sizeof(int));
+	printf("%d/%d\n", -nNode, N);
+	/*
+	cntNNode++;
+	
+	if(cntNNode >= umbral)
+	{
+	  cout << cntNNode * (cnt2++) << "/" << N << endl;
+	  cntNNode = 0;
+	}
+	cntNNode++;
+	*/
+	/*
+	if(nNode < -100)
+	  return 0;
+	*/
+	//myFile.write((char*)&nNode, sizeof(int));
+	int cnt = 0;
+	tmpArr[cnt++] = nNode;
 	for(int j = 0; j < N; j++)
 	{
 	  int n = j + 1;
+	  
+	  //tmpArr[j] = n;
+	  
 	  //myFile.write((char*)&n, sizeof(int));
 	  
-	  BitmapWrapper bw;
-	  Utils::CreateQuadCode(j, i, &bw, structure->quadCodeSize);
+	  //BitmapWrapper bw;
+	  
+	  Utils::CreateQuadCode2(j, i, &bw, structure->quadCodeSize);
 	  
 	  if(structure->CheckBitmap(bw.bitmap, structure->quadCodeSize, NULL))
 	  {
-	      myFile.write((char*)&n, sizeof(int));
+	      //myFile.write((char*)&n, sizeof(int));
+	      tmpArr[cnt++] = n;
 	      //cout << n << " ";
-	      cout << "(" << j << ", " << i << ") found." << endl;
+	      //cout << "(" << j << ", " << i << ") found." << endl;
 	  } 
-	  else
-	  {
-	      //cout << "(" << j << ", " << i << ") not found." << endl;
-	  }
 	  
-	  delete bw.bitmap;
+	  //delete bw.bitmap;
+	  
 	}
+	
+	myFile.write((char*)tmpArr, sizeof(int) * cnt);
       }
       
+      delete bw.bitmap;
       delete structure;
       myFile.close();
   }
