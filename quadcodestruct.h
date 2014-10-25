@@ -25,6 +25,7 @@ public:
     
     //Check if bitmap is part of the path.
     bool CheckBitmap(uint* bitmap, int len, int* pathPos);
+    bool CheckPoint(unsigned long bitmap, int len);
     bool RangeEmptyQuery(Point upperLeftPoint, Point bottomRightPoint);
     
     void PrintPointList();

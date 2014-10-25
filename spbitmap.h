@@ -22,14 +22,17 @@ private:
   
 public:
   BitSequence* bitSeq;
-  unsigned int* bitmap;
+  unsigned long* bitmap;
   int len;
+  
+  int n;
+  int lastIdxSize;
   
   SPBitmap(unsigned int* bitmap, int len, BITSEQ seq);
   SPBitmap();
   //unsigned int XOR(unsigned int op, int initBitPos, int leftZeroes);
   int XOR(uint* op, int initBitPos, int queryLen);
-  int XOR(uint op, int initBitPos, int queryLen);
+  int XOR(unsigned long op, int initBitPos, int queryLen);
   
   void PrintBitmap(int spaceAtPosition);
   uint GetBitAt(int position);

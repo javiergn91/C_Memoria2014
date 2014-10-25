@@ -5,6 +5,7 @@
 #include <math.h>
 #include <queue>
 #include "utils.h"
+#include <algorithm>
 using namespace std;
 
 #define ONE true
@@ -76,7 +77,7 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
     vector<bool> pathLensAux;
     vector<bool> pathNextsAux;
     
-    uint* paths = NULL;
+    unsigned long* paths = NULL;
     uint* pathLens = NULL;
     uint* pathNexts = NULL;
 
@@ -133,21 +134,28 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
       pathLensAux[totalSize - 1] = ONE;
     }
     
-    paths = new uint[uint_len(pathsAux.size(),1)];
+    int pathN = pathsAux.size() / 64 + 1;
+    paths = new unsigned long[pathN];
     pathLens = new uint[uint_len(pathsAux.size(),1)];
     pathNexts = new uint[uint_len(pathsAux.size(),1)];
 
+    for(int i = 0; i < pathN; i++)
+      paths[i] = 0;
+    
+    int W2 = 64;
+    //cout << pathsAux.size() << endl;
     for(int i = 0; i < (int)pathsAux.size(); i++)
     {
-      if(pathsAux[i] == ONE) 
-      {
-	bitset(paths, i);
-      }
-      else
-      {
-	bitclean(paths, i);
-      }
+	//cout << (pathsAux[i] == ONE) ? 1 : 0;
+      
+	int idx = i / W2;
+      
+	paths[idx] <<= 1;
+
+	if(pathsAux[i] == ONE)
+	  paths[idx] |= 1;	 
     }
+    //cout << endl;
     
     for(int i = 0; i < (int)pathLensAux.size(); i++) 
     {
@@ -172,27 +180,16 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 	bitclean(pathNexts, i);
       }
     }
-    
-    
-    //structure->setPathBitmap(new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE));
-    //structure->setPathLenBitmap(new SPBitmap(pathLens, pathLensAux.size(), pathLenBitSequence));
-    //structure->setPathNextBitmap(new SPBitmap(pathNexts, pathNextsAux.size(), pathNextBitSequence));
-    
-    //cout << "dasdsa" << endl;
-    
+        
     structure->pathBitmap = new SPBitmap();
     structure->pathBitmap->bitmap = paths;
     structure->pathBitmap->len = pathsAux.size();
     
     structure->pathNextBitmap = new SPBitmap();
-    structure->pathNextBitmap->bitSeq = new BitSequenceRRR(pathNexts, pathNextsAux.size());
+    structure->pathNextBitmap->bitSeq = new BitSequenceSDArray(pathNexts, pathNextsAux.size());
     
     structure->pathLenBitmap = new SPBitmap();
     structure->pathLenBitmap->bitSeq = new BitSequenceRRR(pathLens, pathLensAux.size());
-    
-    //pathBitmap = new SPBitmap(paths, pathsAux.size(), BITSEQ_NONE);
-    //pathLenBitmap = new SPBitmap(pathLens, pathLensAux.size(), BITSEQ_RRR);
-    //pathNextBitmap = new SPBitmap(pathNexts, pathNextsAux.size(), BITSEQ_SARRAY);
 }
 
 void Trie::CreateSubtree(vector<bool>* v, int startIndex, TrieNode* currNode)

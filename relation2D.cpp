@@ -125,7 +125,7 @@ void Relation2D::ReadBinaryFile(const char* filename)
   
   file.read((char*)&intAux, sizeof(int));
   
-  //int numP = -999;
+  //int numP = -190;
   /*
   while(!file.eof())
   {

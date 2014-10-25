@@ -2,6 +2,7 @@
 #include "common.h"
 #include "utils.h"
 #include <libcdsBasics.h>
+#include <algorithm>
 
 using namespace cds_utils;
 
@@ -17,9 +18,9 @@ QuadCodeStructure::QuadCodeStructure()
 
 void QuadCodeStructure::PrintBitmaps()
 {
-  pathBitmap->PrintBitmap(-1); cout << endl << endl;
-  pathNextBitmap->PrintBitmap(-1); cout << endl << endl;
-  pathLenBitmap->PrintBitmap(-1); cout << endl << endl;
+  //pathBitmap->PrintBitmap(-1); cout << endl << endl;
+  //pathNextBitmap->PrintBitmap(-1); cout << endl << endl;
+  //pathLenBitmap->PrintBitmap(-1); cout << endl << endl;
 }
 
 void QuadCodeStructure::Save(const char* filename)
@@ -38,11 +39,11 @@ void QuadCodeStructure::Save(const char* filename)
   pathFile.write((char*)&pathBitmap->len, sizeof(int));
   //pathFile.write((char*)pathBitmap->bitmap, uint_len(pathBitmap->len, 1));
   
-  int bytes = uint_len(pathBitmap->len, 1);
+  int bytes = pathBitmap->len / 64 + 1;//uint_len(pathBitmap->len, 1);
   
   for(int i = 0; i < bytes; i++)
   {
-    pathFile.write((char*)&pathBitmap->bitmap[i], sizeof(uint));
+    pathFile.write((char*)&pathBitmap->bitmap[i], sizeof(unsigned long));
     //cout << (uint)pathBitmap->bitmap[i] << endl;
   }
   
@@ -68,11 +69,18 @@ void QuadCodeStructure::Load(const char* filename)
   pathFile.read((char*)&universeSize, sizeof(int));
   pathFile.read((char*)&quadCodeSize, sizeof(int));
   pathFile.read((char*)&pathBitmap->len, sizeof(int));
+  
   //cout << "Quadcode size: " << quadCodeSize << endl;
   //cout << "Len: " << pathBitmap->len << endl;
   
-  int bytes = uint_len(pathBitmap->len, 1);
-  pathBitmap->bitmap = new uint[bytes];
+  int bytes = pathBitmap->len / 64 + 1;//uint_len(pathBitmap->len, 1);
+  pathBitmap->bitmap = new unsigned long[bytes];
+  
+  pathBitmap->n = pathBitmap->len / WL + 1;
+  pathBitmap->lastIdxSize = pathBitmap->len % WL;
+
+  //cout << bytes << endl;
+  //pathBitmap->bitmap = new uint[bytes];
   
   //cout << "Bytes: " << bytes << endl;
   
@@ -80,11 +88,10 @@ void QuadCodeStructure::Load(const char* filename)
   
   for(int i = 0; i < bytes; i++)
   {
-    pathFile.read((char*)&pathBitmap->bitmap[i], sizeof(int));
+    pathFile.read((char*)&pathBitmap->bitmap[i], sizeof(unsigned long));
     //cout << (uint)pathBitmap->bitmap[i] << endl;
   }
   
-
   pathNextBitmap->bitSeq = BitSequence::load(pathNextFile);
   pathLenBitmap->bitSeq = BitSequence::load(pathLenFile);
   
@@ -300,96 +307,103 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
   GetQuad(p + 1, parentCode, quadCodeSize - failAt);
 }
 
+bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
+{
+  /*
+  cout << "QUADCODE: ";
+  vector<int> v;
+  unsigned long tmp = bitmap;
+  while(tmp)
+  {
+      v.push_back(tmp % 2);
+      tmp /= 2;
+  }
+  int l = len - v.size();
+  while(l--)
+    cout << "0";
+  reverse(v.begin(), v.end());
+  for(int i = 0; i < v.size(); i++)
+    cout << v[i];
+  cout << endl << endl;
+    */
+  int currPos = 0;
+  int position;
+  
+  unsigned long zero = 0;
+  
+  while(true)
+  { 
+    //cout << "CurrPos: " << currPos << endl;
+    position = pathBitmap->XOR(bitmap, currPos, len);
+    //cout << "Position: " << position << endl;
+    if(position == -1)
+      return true;
+    else
+    {
+	uint bit = (pathNextBitmap->bitSeq->access(position)) ? 1 : 0;
+      
+	if(bit == 1)
+	{
+	  int offset = (position + 1 - currPos);
+	  len -= offset;
+	  bitmap &= ~(~zero << len);
+	}
+	
+	if(bit == 0)
+	{
+	  return false;
+	}
+	else if(bit == 1 && len <= 0)
+	{
+	  return true;
+	}
+	else if(bit == 1)
+	{
+	  int numOnes = pathNextBitmap->bitSeq->rank1(position);
+	  currPos = pathLenBitmap->bitSeq->select1(numOnes) + 1; 
+	}
+    }
+  }
+  
+  return false;
+}
+
 bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 {
-  //cout << len << endl;
-  
   int currPos = 0;
-  /*
-  for(int i = 0; i < len; i++)
-  {
-      cout << bitget(bitmap, i);
-  }
-  cout << endl;
-  */
-  //pathBitmap->PrintBitmap(-1); cout << endl;
-  
-  //int lastPosition = 0;
-  //cout << "LEN: " << pathNextBitmap->bitSeq->getLength() << endl;
-  //cout << endl;
+ 
   while(true)
-  {
-    //cout << 
+  { 
     int position = 0;
     
     if(len > W)
     {
-      /*
-      cout << len << endl;
-      //cout << "Bitmap[0]: ";
-      
-      for(int i = 0; i < len; i++)
-      {
-	cout << bitget(&bitmap[0], i);
-      }
-      cout << endl;
-      */
-      /*
-      for(int i = 0; i < W; i++)
-      {
-	  cout << bitget(pathBitmap->bitmap, i);
-      }
-      cout << endl;
-      */
-      //cout << "CurrPOS: " << currPos << endl;
-      
-      //cout << bitget(pathBitmap->bitmap, 54) << endl;
-      
       position = pathBitmap->XOR(bitmap[0], currPos, W);
-      //cout << "POS: " << position << endl;
       if(position == -1)
       {
-	//cout << "asd64" << endl;
 	position = pathBitmap->XOR(bitmap[1], currPos + W, len - W);
-	//cout << "POS2: " << position << endl;
       }
-      /*
-      if(position != -10
-	position += W;
-      */
     }
     else
     {
-      //cout << "asd32" << endl;
       position = pathBitmap->XOR(bitmap[0], currPos, len);
-      //cout << position << endl;
     }
-    
-    //position = pathBitmap->XOR(bitmap[0], currPos, len);
-    //cout << "Position: " << position << endl;
-    
+     
     if(position == -1)
     {
       if(pathPos != NULL)
 	*pathPos = currPos + len - 1;
-      //cout << "Path pos: " << *pathPos << endl;
-      //cout << "true" << endl;
+    
       return true;
     }
     else
     {
-	//uint bit = pathNextBitmap->GetBitAt(position);
-      //cout << "position: " << position << endl;
 	uint bit = (pathNextBitmap->bitSeq->access(position)) ? 1 : 0;
       
-	//cout << "bit: " << bit << endl;
-	//cout << "len: " << len << endl;
 	if(bit == 1)
 	{
 	  int offset = (position + 1 - currPos);
-	  
-	  //cout << "offset: " << offset << endl;
-	  
+	    
 	  if(offset >= W)
 	  {
 	      offset -= W;
@@ -397,52 +411,19 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 	  }
 	  
 	  if(len > W)
-	  {
-	    //cout << "len > W: " << offset << endl;
-	    //for(int i = 0; i < len; i++)
-	    //  cout << bitget(bitmap, i);
-	    //cout << endl;
-	    
+	  {  
 	    bitmap[0] >>= offset;
-	    //cout << "tmp: ";
 	    
 	    bitmap[0] = (bitmap[1] & ~(~0 << (offset))) << (W - offset) | bitmap[0];// | (bitmap[0] >> offset);// (W - offset);
-	    bitmap[1] >>= offset;
-	    
-	    //for(int i = 0; i < len - offset; i++)
-	    //  cout << bitget(bitmap, i);
-	    //cout << endl;
-	    //cout << "============" << endl;
-	  
-            		      
+	    bitmap[1] >>= offset; 		      
 	  }
 	  else
 	  {
-	    //cout << "Bitmap: "; for(int i = 0; i < len; i++) 
-	    
 	    *bitmap >>= (position + 1 - currPos);
 	  }
 	   
 	  len -= (position + 1 - currPos);
-	  /*
-	  cout << "bitmap: ";
-	  for(int i = 0; i < len; i++)
-	    cout << bitget(bitmap, i);
-	  cout << endl;
-	  */
-	  //lastPosition = position + 1;
 	}
-	
-	//cout << "Length: " << len << endl;
-	
-	//cout << "Word0: ";
-	/*
-	for(int i = 0; i < len; i++)
-	{
-	  cout << bitget(bitmap, i);
-	}
-	cout << endl;
-	*/
 	
 	if(bit == 0)
 	{
@@ -455,18 +436,12 @@ bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
 	    int numOnes = pathNextBitmap->bitSeq->rank1(position);//->Rank(1, position); //cout << "ONES: " << numOnes << endl;
 	    *pathPos = pathLenBitmap->bitSeq->select1(numOnes);
 	  }
-	    //cout << "sdas" << endl;
 	  return true;
 	}
 	else if(bit == 1)
 	{
-	  //int numOnes = pathNextBitmap->Rank(1, position); //cout << "ONES: " << numOnes << endl;
-	  //currPos = pathLenBitmap->Select(1, numOnes) + 1;
-	  
 	  int numOnes = pathNextBitmap->bitSeq->rank1(position);//->Rank(1, position); //cout << "ONES: " << numOnes << endl;
 	  currPos = pathLenBitmap->bitSeq->select1(numOnes) + 1; //Select(1, numOnes) + 1;
-	  
-	  //cout << "currPos: " << currPos << endl;
 	}
     }
   }

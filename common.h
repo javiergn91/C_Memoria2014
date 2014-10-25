@@ -66,4 +66,6 @@ public:
 extern BITSEQ pathLenBitSequence;
 extern BITSEQ pathNextBitSequence;
 
+#define WL 64
+
 #endif

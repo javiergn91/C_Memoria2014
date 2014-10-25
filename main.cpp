@@ -83,9 +83,13 @@ void RunCheckPointTest(QuadCodeStructure* structure)
   
   while(cin >> x >> y)
   {
-    Utils::CreateQuadCode(x, y, &bitW, structure->quadCodeSize);
+    //Utils::CreateQuadCode(x, y, &bitW, structure->quadCodeSize);
  
-    bool b1 = structure->CheckBitmap(bitW.bitmap, bitW.len, NULL);
+    
+    
+    //bool b1 = structure->CheckBitmap(bitW.bitmap, bitW.len, NULL);
+    
+    bool b1 = structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize);
     
     if(!bOk)
     {
@@ -97,6 +101,8 @@ void RunCheckPointTest(QuadCodeStructure* structure)
     if(!b1)
     {
       cout << "(" << x << ", " << y << ") " << endl;
+    
+      return;
     }
     /*
     cout << "(" << x << ", " << y << ") ";
@@ -307,11 +313,14 @@ int main(int argc, char** argv)
     //cout << structure->pathBitmap->len << endl;
     //cout << structure->pathNextBitmap->bitSeq->getLength() << endl;
     //cout << structure->pathLenBitmap->bitSeq->getLength() << endl;
+    //int l = atoi(argv[3]);
+    
     
     //return 0;
     structure->pathBitmap->PrintBitmap(-1); cout << endl << endl;
     
     int len = structure->pathBitmap->len;
+    /*
     for(int i = 0; i < len; i++)
     {
 	if(structure->pathNextBitmap->bitSeq->access(i))
@@ -324,7 +333,8 @@ int main(int argc, char** argv)
 	}
     }
     cout << endl << endl;
-    
+    */
+    /*
     for(int i = 0; i < len; i++) 
     {
       if(structure->pathLenBitmap->bitSeq->access(i))
@@ -337,7 +347,7 @@ int main(int argc, char** argv)
       }
     }
     cout << endl << endl;
-    
+    */
     delete structure;
   }
  
@@ -433,77 +443,37 @@ int main(int argc, char** argv)
       ofstream myFile(argv[3], ios::out | ios::binary);
     
       QuadCodeStructure* structure = new QuadCodeStructure();
+    
       structure->Load(argv[2]);  
       
-      //int N = 1 << (structure->quadCodeSize / 2);
       int N = structure->universeSize;
       long numElements = structure->pathNextBitmap->bitSeq->countOnes() + 1;
-      //cout << "N: " << N << ", Num elements: " << numElements << endl;
       myFile.write((char*)&N, sizeof(int));
-      //cout << "asdas";
       myFile.write((char*)&numElements, sizeof(long));
-      //return 0;
       
       int* tmpArr = new int[N];
-      BitmapWrapper bw;
-      
-      bw.len = structure->quadCodeSize;
-      bw.bitmap = new uint[uint_len(bw.len, 1)];
-  
-      //int cntNNode = 0;
-      //int cnt2 = 1;
-      
-      //int umbral = N / 100;
       
       for(int i = 0; i < N; i++)
       {	
 	int nNode = -(i + 1);
 	printf("%d/%d\n", -nNode, N);
 	/*
-	cntNNode++;
-	
-	if(cntNNode >= umbral)
-	{
-	  cout << cntNNode * (cnt2++) << "/" << N << endl;
-	  cntNNode = 0;
-	}
-	cntNNode++;
-	*/
-	/*
 	if(nNode < -100)
 	  return 0;
 	*/
-	//myFile.write((char*)&nNode, sizeof(int));
 	int cnt = 0;
 	tmpArr[cnt++] = nNode;
 	for(int j = 0; j < N; j++)
 	{
 	  int n = j + 1;
 	  
-	  //tmpArr[j] = n;
-	  
-	  //myFile.write((char*)&n, sizeof(int));
-	  
-	  //BitmapWrapper bw;
-	  
-	  Utils::CreateQuadCode2(j, i, &bw, structure->quadCodeSize);
-	  
-	  if(structure->CheckBitmap(bw.bitmap, structure->quadCodeSize, NULL))
-	  {
-	      //myFile.write((char*)&n, sizeof(int));
-	      tmpArr[cnt++] = n;
-	      //cout << n << " ";
-	      //cout << "(" << j << ", " << i << ") found." << endl;
-	  } 
-	  
-	  //delete bw.bitmap;
-	  
+	  if(structure->CheckPoint(Utils::QuadCode(j, i), structure->quadCodeSize))
+	    tmpArr[cnt++] = n;
 	}
 	
 	myFile.write((char*)tmpArr, sizeof(int) * cnt);
       }
       
-      delete bw.bitmap;
       delete structure;
       myFile.close();
   }

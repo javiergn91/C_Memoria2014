@@ -3,6 +3,7 @@
 #include <iostream>
 #include "math.h"
 #include "utils.h"
+#include <algorithm>
 
 using namespace std;
 using namespace cds_utils;
@@ -10,6 +11,7 @@ using namespace cds_static;
 
 SPBitmap::SPBitmap(unsigned int* bitmap, int len, BITSEQ seq) 
 {
+  /*
   this->bitmap = bitmap;
   this->len = len;
   
@@ -27,6 +29,7 @@ SPBitmap::SPBitmap(unsigned int* bitmap, int len, BITSEQ seq)
   {
     bitSeq = new BitSequenceSDArray(bitmap, len);
   }
+  */
 }
 
 SPBitmap::SPBitmap()
@@ -190,147 +193,75 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
 }
 */
 
-int SPBitmap::XOR(uint op, int initBitPos, int queryLen)
+int SPBitmap::XOR(unsigned long op, int initBitPos, int queryLen)
 {
-    //cout << initBitPos << " " << queryLen << endl;
-  
-    int initIndex = initBitPos / W;
-    int finalIndex = (initBitPos + queryLen - 1) / W;
+    int initIndex = initBitPos / WL;
+    int finalIndex = (initBitPos + queryLen - 1) / WL;
+    unsigned long result = -1; 
     
-    //cout << "QueryLen: " << queryLen << endl;
-    
-    //cout << "OP: ";
-    //for(int i = 0; i < queryLen; i++) cout << bitget(&op, i); cout << endl;
-    //for(int i = 0; i < queryLen; i++) cout << bitget(bitmap, i); cout << endl;
-    /*
-    
-    
-          for(int i = 0; i < queryLen; i++)
-      {
-	cout << bitget(&bitmap[initIndex], i);
-      }
-      cout << endl;
-    */
-    uint result = 0; 
-    
-    //cout << initIndex << " " << finalIndex << endl;
+    unsigned long one = 1;
+    unsigned long zero = 0;    
     
     if(initIndex == finalIndex) 
     {
-      //cout << "SPBITMAP" << endl;
+      unsigned long word = bitmap[initIndex];
       
-      //cout << "pos: " << initIndex << endl;
-      //uint word = bitmap[initIndex];
-      uint word = bitmap[initIndex];
-      uint wordOP = op;
-      
-      //cout << "--OP: "; for(int i = 0; i < queryLen; i++) cout << bitget(&wordOP, i); cout << endl;
-      //cout << "WORD: "; for(int i = 0; i < W; i++) cout << bitget(&word, i); cout << endl;
-      
-      
-      /*
-      for(int i = 0; i < queryLen; i++)
+      unsigned long wordOP = op;
+       
+      int l = initBitPos % WL;
+    
+      int s = (finalIndex == n - 1) ? lastIdxSize : WL;
+      if(l != 0)
       {
-	cout << bitget(&wordOP, i);
+	word &= ~(~zero << (s - l));
       }
-      cout << endl;
-      */
       
-      //wordOP = (wordOP & ~(~0 << queryLen));
-      //queryLen = 32;
-      wordOP = (queryLen == W) ? wordOP : (wordOP & ~(~0 << queryLen));
-      /*
-      for(int i = 0; i < queryLen; i++)
-	cout << bitget(&wordOP, i);
-      cout << endl;
-      */
-      word = (word >> (initBitPos % W));
+      word >>= (s - queryLen - l);
+      word |= one << (queryLen);
+      wordOP |= one << (queryLen);
       
-      //cout << "WORD: "; for(int i = 0; i < W; i++) cout << bitget(&word, i); cout << endl;
-      
-      word = (queryLen == W) ? word : (word & ~(~0 << queryLen));
       result = word ^ wordOP;
-      
-      //cout << "RESU: "; for(int i = 0; i < W; i++) cout << bitget(&result, i); cout << endl;
     }
     else
     {
-      //cout << "Second case" << endl;
+      unsigned long word1 = bitmap[initIndex];
+      unsigned long word2 = bitmap[finalIndex];
       
-      bool bDebug = false;
+      int l = initBitPos % WL;
+      int w1 = WL - l;
+      int w2 = queryLen - w1;
       
-      uint word1 = bitmap[initIndex];
-      uint word2 = bitmap[finalIndex];
-      
-      if(bDebug)
+      if(initBitPos != 0)
+	word1 &= ~(~zero << w1);
+
+      if(w2 != WL)
       {
-	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
-	cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
+	int s = (finalIndex == n - 1) ? lastIdxSize : WL;
+	word2 &= (~zero);
+	word2 >>= (s - w2);
       }
       
-      int word1Size = W - initBitPos % W;
+      word1 = word1 << w2 | word2;	
       
-      word1 = (word1 >> (initBitPos % W)) & ~(~0 << word1Size);
+      word1 |= one << (queryLen);
+      op |= one << (queryLen);
       
-      int word2Size = queryLen - word1Size;
-      
-      //cout << "word1Size: " << W - word2Size << endl;
-      
-      //word2 &= ~(~0 << (W - word2Size));
-      word2 &= ~(~0 << (word2Size));
-      //word2 >>= (len - word1Size);
-      
-      if(bDebug)
-      {
-	cout << "===" << endl;
-	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
-	cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
-      }
-      
-      //cout << word2Size << endl;
-      //word1 = (word1 << word1Size) | word2;
-      word2 <<= word1Size;
-      
-      word1 |= word2;
-      
-      if(bDebug)
-      {
-	cout << "===" << endl;
-	cout << "Word1: "; for(int i = 0; i < W; i++) cout << bitget(&word1, i); cout << endl; 
-	//cout << "Word2: "; for(int i = 0; i < W; i++) cout << bitget(&word2, i); cout << endl;
-      }
-      
-      uint wordOP = op;
-      //wordOP = (wordOP & ~(~0 << queryLen));
-      wordOP = (queryLen == W) ? wordOP : (wordOP & ~(~0 << queryLen)); 
-      
-      if(bDebug)
-      {
-	//cout << "===" << endl;
-	cout << "---Op: "; for(int i = 0; i < W; i++) cout << bitget(&wordOP, i); cout << endl;
-      }
-      
-      result = word1 ^ wordOP;
-      
-      //cout << "Result: (" << result << "): ";
-      //for(int i = 0; i < W; i++) cout << bitget(&result, i); cout << endl;
+      result = word1 ^ op;
     }
     
     if(result == 0)
     {
-      //cout << "sda" << endl;
       return -1;
-      //cout << "OK!" << endl;
     }
     else
     {
-      unsigned int failPosition = (result & ~(result - 1)); 
+      unsigned int firstPart = result >> 32;
+      unsigned int secondPart = (result << 32) >> 32; 
       
-      //delete this.
-      //initBitPos = 0;
-      //cout << "P: " << bits(failPosition) + initBitPos - 1 << endl;
-      return bits(failPosition) + initBitPos - 1;
-      //return floor(log2(failPosition)) + initBitPos;
+      if(firstPart == 0)
+	return queryLen - Utils::msb(secondPart) + initBitPos;
+      else
+	return queryLen - (Utils::msb(firstPart) + 32) + initBitPos;
     }
     
     return 0;
@@ -458,6 +389,39 @@ uint SPBitmap::GetBitAt(int position)
 
 void SPBitmap::PrintBitmap(int spaceAtPosition)
 {
+  int n = len / WL + 1;
+  int lastIdxSize = len % WL;
+  
+  int a = spaceAtPosition;;
+  
+  for(int i = 0; i < n; i++)
+  {
+    unsigned long m = bitmap[i];
+    
+    vector<int> v;
+    while(m)
+    {
+	v.push_back(m % 2);
+	m /= 2;
+    }
+    
+    reverse(v.begin(), v.end());
+    
+    int l = WL - v.size();
+    
+    if(i + 1 == n)
+      l = lastIdxSize - v.size();
+    
+    for(int j = 0; j < l; j++) 
+      cout << "0";
+    
+    for(int j = 0; j < v.size(); j++)
+      cout << v[j];
+  }
+  
+  cout << endl;
+  
+  /*
   for(int i = 0; i < len; i++) 
   {
     if(spaceAtPosition == i) cout << " ";
@@ -465,5 +429,6 @@ void SPBitmap::PrintBitmap(int spaceAtPosition)
     
     cout << bitget(bitmap, i);
   }
+  */
   //cout << endl;
 }
