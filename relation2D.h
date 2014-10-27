@@ -38,6 +38,7 @@ public:
     
     int N;
     int universeSize;
+    vector< Point > points;
     
 private:
     float minDegreeX;
@@ -52,7 +53,7 @@ private:
     //int N;
     long numElements;
     vector< pair<float, float> > elementList;
-    vector< Point > points;
+    
 
     ofstream *logStream;
 };

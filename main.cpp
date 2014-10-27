@@ -76,22 +76,17 @@ void auxFunc(Trie* t, int i1, int i2, int i3, int i4) {
 
 void RunCheckPointTest(QuadCodeStructure* structure)
 {   
-  int x, y;
-  BitmapWrapper bitW;
+  int n;
+  scanf("%d", &n);
   
-  bool bOk = true;
-  
-  while(cin >> x >> y)
+  while(n--)
   {
-    //Utils::CreateQuadCode(x, y, &bitW, structure->quadCodeSize);
- 
-    
-    
-    //bool b1 = structure->CheckBitmap(bitW.bitmap, bitW.len, NULL);
+    int x, y;
+    scanf("%d %d", &x, &y);
     
     bool b1 = structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize);
     
-    if(!bOk)
+    if(!b1)
     {
       cout << "Error!" << endl;
       
@@ -104,19 +99,6 @@ void RunCheckPointTest(QuadCodeStructure* structure)
     
       return;
     }
-    /*
-    cout << "(" << x << ", " << y << ") ";
-  
-    if(b1)
-      cout << "Y" << endl;
-    else
-      cout << "N" << endl;
-    */
-  }
-  
-  if(bOk)
-  {
-    //cout << "OK!" << endl;
   }
 }
 
@@ -253,6 +235,7 @@ int main(int argc, char** argv)
     cout << "-Info binaryfilename: Size of each bitmap, number of 1's and 0's of each bitmap." << endl << endl;
     cout << "-RebuildTreeCheckPoint binaryfilename newbinaryfilename: Read a binary dataset and write it again into newbinaryfilename using CheckPoint operation." << endl << endl;
     cout << "-CreateStructBin binaryfilename name: Create the structure and store it in three binary files name.path, name.nextpath, name.lenpath" << endl << endl;
+    cout << "-GenerateTrueQueries binaryfilename newfile numqueries" << endl << endl;
     return 0;
   }
   
@@ -260,6 +243,32 @@ int main(int argc, char** argv)
   {
     relation2D.ReadBinaryFile(argv[2]);
     relation2D.PrintPointList();
+  
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-GenerateTrueQueries") == 0)
+  {
+    srand(time(NULL));
+    
+    relation2D.ReadBinaryFile(argv[2]);
+    
+    int numQueries = atoi(argv[4]);
+    int numPoints = relation2D.points.size();
+    
+    cout << numPoints << endl;
+    
+    ofstream myFile(argv[3]);
+    
+    myFile << numQueries << endl;
+    
+    while(numQueries--)
+    {
+        int p = rand() % numPoints;
+	myFile << relation2D.points[p].x << " " << relation2D.points[p].y << endl;
+    }
+    
+    myFile.close();
   
     return 0;
   }
@@ -357,25 +366,6 @@ int main(int argc, char** argv)
     structure->Load(argv[2]);
     
     RunCheckPointTest(structure);
-    return 0;
-    
-    BitmapWrapper bw;
-    Utils::CreateQuadCode(191473, 313032, &bw, 38);
-    
-    for(int i = 0; i < 38; i++)
-    {
-	cout << bitget(bw.bitmap, i);
-    }
-    cout << endl;
-    
-    if(structure->CheckBitmap(bw.bitmap, 38, NULL))
-    {
-	cout << "Y" << endl;
-    }
-    else
-    {
-	cout << "N" << endl;
-    }
     
     delete structure;
     
