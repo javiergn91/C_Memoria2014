@@ -186,7 +186,7 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
     structure->pathBitmap->len = pathsAux.size();
     
     structure->pathNextBitmap = new SPBitmap();
-    structure->pathNextBitmap->bitSeq = new BitSequenceSDArray(pathNexts, pathNextsAux.size());
+    structure->pathNextBitmap->bitSeq = new BitSequenceRRR(pathNexts, pathNextsAux.size());
     
     structure->pathLenBitmap = new SPBitmap();
     structure->pathLenBitmap->bitSeq = new BitSequenceRRR(pathLens, pathLensAux.size());

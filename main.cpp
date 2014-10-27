@@ -268,7 +268,7 @@ int main(int argc, char** argv)
   {
     parseTXTFile(argv[2]);
 
-    relation2D.SetCellSize(0.01f, 0.01f);
+    relation2D.SetCellSize(0.00001f, 0.00001f);
     relation2D.DetermineArrayLimits();    
     
     Trie relation2DTrie;
@@ -457,16 +457,16 @@ int main(int argc, char** argv)
       {	
 	int nNode = -(i + 1);
 	printf("%d/%d\n", -nNode, N);
-	/*
+	
 	if(nNode < -100)
 	  return 0;
-	*/
+	
 	int cnt = 0;
 	tmpArr[cnt++] = nNode;
 	for(int j = 0; j < N; j++)
 	{
 	  int n = j + 1;
-	  
+	  //Utils::QuadCode(j, i);
 	  if(structure->CheckPoint(Utils::QuadCode(j, i), structure->quadCodeSize))
 	    tmpArr[cnt++] = n;
 	}

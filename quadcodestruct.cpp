@@ -330,14 +330,21 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
   int position;
   
   unsigned long zero = 0;
-  
+  int cnt = 0;
   while(true)
   { 
     //cout << "CurrPos: " << currPos << endl;
     position = pathBitmap->XOR(bitmap, currPos, len);
     //cout << "Position: " << position << endl;
+    
+    cnt++;
     if(position == -1)
+    {
+      //cout << "C: " << cnt << endl;
       return true;
+    
+      
+    }
     else
     {
 	uint bit = (pathNextBitmap->bitSeq->access(position)) ? 1 : 0;
@@ -363,6 +370,7 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
 	  currPos = pathLenBitmap->bitSeq->select1(numOnes) + 1; 
 	}
     }
+    
   }
   
   return false;

@@ -42,7 +42,7 @@ public:
   int NumberOfOnes();
   int NumberOfZeros();
   
-  int GetSize() { return (bitSeq != NULL) ? bitSeq->getSize() : (len / sizeof(uint) + 1); }
+  int GetSize() { return (bitSeq != NULL) ? bitSeq->getSize() : (len / 8 + 1); }
   bool HasRankSelectStruct() { return bitSeq != NULL; }
 };
 
