@@ -458,8 +458,8 @@ int main(int argc, char** argv)
 	int nNode = -(i + 1);
 	printf("%d/%d\n", -nNode, N);
 	
-	if(nNode < -100)
-	  return 0;
+	//if(nNode < -100)
+	//  return 0;
 	
 	int cnt = 0;
 	tmpArr[cnt++] = nNode;
