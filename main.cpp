@@ -74,32 +74,23 @@ void auxFunc(Trie* t, int i1, int i2, int i3, int i4) {
     t->AddVector(&v);
 }
 
-void RunCheckPointTest(QuadCodeStructure* structure)
+void RunCheckPointTest(QuadCodeStructure* structure, const char* testfile)
 {   
   int n;
-  scanf("%d", &n);
+  ifstream myFile(testfile);
+  
+  myFile.read((char*)&n, sizeof(int));
   
   while(n--)
   {
     int x, y;
-    scanf("%d %d", &x, &y);
-    
-    bool b1 = structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize);
-    
-    if(!b1)
-    {
-      cout << "Error!" << endl;
-      
-      return;
-    }
-    
-    if(!b1)
-    {
-      cout << "(" << x << ", " << y << ") " << endl;
-    
-      return;
-    }
+    myFile.read((char*)&x, sizeof(int));
+    myFile.read((char*)&y, sizeof(int));
+    //cout << x << " " << y << endl;
+    //structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize);
   }
+  
+  myFile.close();
 }
 
 void RunEmptyQueryTest(QuadCodeStructure* structure)
@@ -228,7 +219,7 @@ int main(int argc, char** argv)
     cout << "-rbin filename: Read a binary file containing an adjacency list." << endl << endl;
     cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
     cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
-    cout << "-CheckPoint name: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
+    cout << "-CheckPoint name rep: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
     cout << "-CreateTestForRangeEmptyQuery binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
     cout << "-RangeEmptyQuery name: (x1, y1); (x2, y2) until end of file is reached." << endl << endl;
     cout << "-Size binaryfilename: Size of the structure (bitmaps + rank/select)" << endl << endl;
@@ -236,6 +227,7 @@ int main(int argc, char** argv)
     cout << "-RebuildTreeCheckPoint binaryfilename newbinaryfilename: Read a binary dataset and write it again into newbinaryfilename using CheckPoint operation." << endl << endl;
     cout << "-CreateStructBin binaryfilename name: Create the structure and store it in three binary files name.path, name.nextpath, name.lenpath" << endl << endl;
     cout << "-GenerateTrueQueries binaryfilename newfile numqueries" << endl << endl;
+    cout << "-GenerateFalseQueries binaryfilename newfile numqueries" << endl << endl;
     return 0;
   }
   
@@ -243,6 +235,41 @@ int main(int argc, char** argv)
   {
     relation2D.ReadBinaryFile(argv[2]);
     relation2D.PrintPointList();
+  
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-GenerateFalseQueries") == 0)
+  {
+    //cout << "sda" << endl;
+    srand(time(NULL));
+    
+    relation2D.ReadBinaryFile(argv[2]);
+    
+    int numQueries = atoi(argv[4]);
+    int numPoints = relation2D.points.size();
+    int N = relation2D.getN();
+    
+    ofstream myFile(argv[3]);
+    
+    //myFile << numQueries << endl;
+    myFile.write((char*)&numQueries, sizeof(int));
+    
+    while(numQueries)
+    {
+        int pX = rand() % N;
+	int pY = rand() % N;
+	
+	if(!relation2D.IsInRelation(pX, pY))
+	{
+	  numQueries--;
+	  myFile.write((char*)&pX, sizeof(int));
+	  myFile.write((char*)&pY, sizeof(int));
+	  //myFile << pX << " " << pY << endl;
+	}
+    }
+    
+    myFile.close();
   
     return 0;
   }
@@ -256,16 +283,19 @@ int main(int argc, char** argv)
     int numQueries = atoi(argv[4]);
     int numPoints = relation2D.points.size();
     
-    cout << numPoints << endl;
+    //cout << numPoints << endl;
     
-    ofstream myFile(argv[3]);
+    ofstream myFile(argv[3], ios::binary);
     
-    myFile << numQueries << endl;
+    myFile.write((char*)&numPoints, sizeof(int));
+    //myFile << numQueries << endl;
     
     while(numQueries--)
     {
         int p = rand() % numPoints;
-	myFile << relation2D.points[p].x << " " << relation2D.points[p].y << endl;
+	myFile.write((char*)&relation2D.points[p].x, sizeof(int));
+	myFile.write((char*)&relation2D.points[p].y, sizeof(int));
+	//myFile << relation2D.points[p].x << " " << relation2D.points[p].y << endl;
     }
     
     myFile.close();
@@ -365,7 +395,9 @@ int main(int argc, char** argv)
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
     
-    RunCheckPointTest(structure);
+    int reps = atoi(argv[4]);
+    while(reps--)
+      RunCheckPointTest(structure, argv[3]);
     
     delete structure;
     
