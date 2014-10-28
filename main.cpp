@@ -219,7 +219,7 @@ int main(int argc, char** argv)
     cout << "-rbin filename: Read a binary file containing an adjacency list." << endl << endl;
     cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
     cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
-    cout << "-CheckPoint name rep: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
+    cout << "-CheckPoint name newfile rep: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
     cout << "-CreateTestForRangeEmptyQuery binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
     cout << "-RangeEmptyQuery name: (x1, y1); (x2, y2) until end of file is reached." << endl << endl;
     cout << "-Size binaryfilename: Size of the structure (bitmaps + rank/select)" << endl << endl;
@@ -307,7 +307,9 @@ int main(int argc, char** argv)
   {
     parseTXTFile(argv[2]);
 
-    relation2D.SetCellSize(0.00001f, 0.00001f);
+    float pr = atof(argv[4]);
+    //0.00001f
+    relation2D.SetCellSize(pr, pr);
     relation2D.DetermineArrayLimits();    
     
     Trie relation2DTrie;
