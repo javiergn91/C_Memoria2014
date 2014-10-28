@@ -15,6 +15,20 @@ using namespace std;
 
 Relation2D relation2D;
 
+/* Time meassuring */
+double ticks;
+struct tms t1,t2;
+
+void start_clock() {
+        times (&t1);
+}
+
+double stop_clock() {
+        times (&t2);
+        return (t2.tms_utime-t1.tms_utime)/ticks;
+}
+/* end Time meassuring */
+
 void parseTXTFile(string filename)
 {
     //cout << filename << endl;
@@ -217,7 +231,7 @@ int main(int argc, char** argv)
   if(strcmp(argv[1], "--help") == 0)
   {
     cout << "-rbin filename: Read a binary file containing an adjacency list." << endl << endl;
-    cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
+    //cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
     cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
     cout << "-CheckPoint name newfile rep: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
     cout << "-CreateTestForRangeEmptyQuery binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
@@ -228,6 +242,43 @@ int main(int argc, char** argv)
     cout << "-CreateStructBin binaryfilename name: Create the structure and store it in three binary files name.path, name.nextpath, name.lenpath" << endl << endl;
     cout << "-GenerateTrueQueries binaryfilename newfile numqueries" << endl << endl;
     cout << "-GenerateFalseQueries binaryfilename newfile numqueries" << endl << endl;
+    cout << "-TimeCheckPoint structfile testfile expectedResult reps" << endl << endl;
+    return 0;
+  }
+  
+  if(strcmp(argv[1], "-TimeCheckPoint") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    structure->Load(argv[2]);
+      FILE * list_fp = fopen(argv[3],"r");
+      int expectedResult = atoi(argv[4]);
+    int reps = atoi(argv[5]);
+
+    uint queries;
+    fread(&queries, sizeof(uint), 1, list_fp);
+    uint *qry = (uint *) malloc(sizeof(uint)*queries*2);
+    fread(qry, sizeof(uint), queries*2, list_fp);
+    fclose(list_fp);
+
+    double t = 0;
+    ticks= (double)sysconf(_SC_CLK_TCK);
+    start_clock();
+
+    for(int i=0; i<queries; i+=2) {
+        for(int j=0; j<reps; j++) {
+            if(structure->CheckPoint(Utils::QuadCode(qry[i], qry[i+1]), structure->quadCodeSize) != expectedResult) {
+                cout << "Unexpected result" << endl;
+                return -1;
+            }
+        }
+    }
+
+    t += stop_clock();
+    t *= 1000; // to milliseconds
+    cout << "Total time (ms)" << t << endl;
+
+    delete structure;
+
     return 0;
   }
   
@@ -287,7 +338,7 @@ int main(int argc, char** argv)
     
     ofstream myFile(argv[3], ios::binary);
     
-    myFile.write((char*)&numPoints, sizeof(int));
+    myFile.write((char*)&numQueries, sizeof(int));
     //myFile << numQueries << endl;
     
     while(numQueries--)
