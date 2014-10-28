@@ -264,9 +264,9 @@ int main(int argc, char** argv)
     ticks= (double)sysconf(_SC_CLK_TCK);
     start_clock();
 
-    for(int i=0; i<queries; i+=2) {
-        for(int j=0; j<reps; j++) {
-            if(structure->CheckPoint(Utils::QuadCode(qry[i], qry[i+1]), structure->quadCodeSize) != expectedResult) {
+    for(int i=0; i<reps; i++) {
+        for(int j=0; j<queries; j+=2) {
+            if(structure->CheckPoint(Utils::QuadCode(qry[j], qry[j+1]), structure->quadCodeSize) != expectedResult) {
                 cout << "Unexpected result" << endl;
                 return -1;
             }
