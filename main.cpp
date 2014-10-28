@@ -41,9 +41,9 @@ void parseTXTFile(string filename)
             int parameterNum = 0;
             while(getline(iss, token, '\t'))
             {
-                if(parameterNum == 3)
+                if(parameterNum == 4)
                     lat = token;
-                else if(parameterNum == 4)
+                else if(parameterNum == 5)
                     lon = token;
 
                 parameterNum++;
@@ -306,7 +306,7 @@ int main(int argc, char** argv)
   if(strcmp(argv[1], "-GNSCountryFileWriteBin") == 0)
   {
     parseTXTFile(argv[2]);
-
+  return 0;
     float pr = atof(argv[4]);
     //0.00001f
     relation2D.SetCellSize(pr, pr);
