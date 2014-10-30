@@ -40,10 +40,13 @@ public:
     SPBitmap* pathLenBitmap;
     SPBitmap* pathNextBitmap;
     
-private:
     int pointListSize;
     int* pointList[2];
     
+    void PrintFirstPoints(int n);
+    int GetPathBitAt(int position);
+    
+private:
     void GetQuad(int pos, int parentCode, int bitsRemaining);
 };
 

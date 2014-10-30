@@ -556,34 +556,31 @@ int main(int argc, char** argv)
   //NOT FULLY IMPLEMENTED.
   if(strcmp(argv[1], "-RangeReporting") == 0)
   {
-    //QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
-    
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
-    
-    //RunCheckPointTest(structure);
-    
-    //delete structure;
-    
-    /*
-    Trie relation2DTrie;
-    relation2D.ReadBinaryFile(argv[2]);
-    relation2D.FillTriePointsDefined(&relation2DTrie);
-    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
-    relation2DTrie.BuildPathDecomposition(structure);
-    structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
-    */
+
     int x1, y1, x2, y2;
     while(cin >> x1 >> y1 >> x2 >> y2)
     {
       structure->GetPoints(x1, y1, x2, y2);
       structure->PrintPointList();
     }
-    //cout << "Range Reporting" << endl;
-    //RunEmptyQueryTest(structure);
-    
+
     delete structure;       
   }
+  
+  if(strcmp(argv[1], "-GetPoints") == 0)
+  {
+    QuadCodeStructure* structure = new QuadCodeStructure();
+    structure->Load(argv[2]);
+    
+    int n = atoi(argv[3]);
+    structure->PrintFirstPoints(n);
+
+    delete structure;       
+  }
+  
+  
   
   /*
     parseTXTFile("Test/SanMarino.txt");

@@ -389,6 +389,22 @@ uint SPBitmap::GetBitAt(int position)
 
 void SPBitmap::PrintBitmap(int spaceAtPosition)
 {
+  
+  if(bitSeq != NULL)
+  {
+    for(int i = 0; i < bitSeq->getLength(); i++)
+    {
+	int q = 0;
+	if(bitSeq->access(i))
+	  q = 1;
+	
+	cout << q;
+    }
+    cout << endl;
+    
+    return;
+  }
+  
   int n = len / WL + 1;
   int lastIdxSize = len % WL;
   
