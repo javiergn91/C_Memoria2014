@@ -199,25 +199,26 @@ int main(int argc, char** argv)
   */
   /*
   ofstream file("ToyExample.bin", ios::binary);
-  int n = 8;
-  long m = 6;
+  int n = 4;
+  long m = 3;
   file.write((char*)&n, sizeof(int));
   file.write((char*)&m, sizeof(long));
   
   n = -1; file.write((char*)&n, sizeof(int));
-  n = 8;  file.write((char*)&n, sizeof(int));
+  n = 1;  file.write((char*)&n, sizeof(int));
   n = -2; file.write((char*)&n, sizeof(int));
-  n = 2;  file.write((char*)&n, sizeof(int));
-  n = 8;  file.write((char*)&n, sizeof(int));
+  //n = 2;  file.write((char*)&n, sizeof(int));
+  //n = 8;  file.write((char*)&n, sizeof(int));
   n = -3; file.write((char*)&n, sizeof(int));
-  n = 4;  file.write((char*)&n, sizeof(int));
-  n = 8;  file.write((char*)&n, sizeof(int)); 
-  n = -4; file.write((char*)&n, sizeof(int));
-  n = -5; file.write((char*)&n, sizeof(int));
-  n = -6; file.write((char*)&n, sizeof(int));
   n = 3;  file.write((char*)&n, sizeof(int));
-  n = -7; file.write((char*)&n, sizeof(int));
-  n = -8; file.write((char*)&n, sizeof(int));
+  //n = 8;  file.write((char*)&n, sizeof(int)); 
+  n = -4; file.write((char*)&n, sizeof(int));
+  n = 1;  file.write((char*)&n, sizeof(int));
+  //n = -5; file.write((char*)&n, sizeof(int));
+  //n = -6; file.write((char*)&n, sizeof(int));
+  //n = 3;  file.write((char*)&n, sizeof(int));
+  //n = -7; file.write((char*)&n, sizeof(int));
+  //n = -8; file.write((char*)&n, sizeof(int));
   
   file.close();
   */

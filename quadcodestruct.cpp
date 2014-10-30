@@ -241,14 +241,19 @@ void QuadCodeStructure::PrintPointList()
 
 void QuadCodeStructure::PrintFirstPoints(int n)
 {
+  //long m = 832 | (1 << 1);
+  //cout << "m: " << m << endl;
+  
   //pathBitmap->PrintBitmap(-1); cout << endl << endl;
   //pathNextBitmap->PrintBitmap(-1); cout << endl << endl;
   //pathLenBitmap->PrintBitmap(-1); cout << endl << endl;
   
-  int currQuad = quadCodeSize;
+  //int currQuad = quadCodeSize;
   
   queue< pair< pair<long, int>, int > > Q;
   Q.push(make_pair( make_pair(0, quadCodeSize), 0));
+  
+  //cout << "quadCodeSize: " << quadCodeSize << endl;
   
   while(n)
   {
@@ -258,17 +263,10 @@ void QuadCodeStructure::PrintFirstPoints(int n)
       int quadS = curr.first.second;
       long parentCode = curr.first.first;
       
+      //cout << "Position: " << position << ", quadS: " << quadS << ", parentCode: " << parentCode << endl;  
+      
       unsigned int n1 = 0;
       unsigned int n2 = 0;
-      /*
-      for(int i = 0; i < quadS; i++)
-      {
-	  cout << GetPathBitAt(i);
-      }
-      cout << endl;
-      */
-      
-      //cout << "Quadcode: " << quadS << endl;
       
       long tmpParent = parentCode;
       //cout << "tmpParent: " << tmpParent << endl;
@@ -296,20 +294,24 @@ void QuadCodeStructure::PrintFirstPoints(int n)
       
       reverse(v1.begin(), v1.end());
       reverse(v2.begin(), v2.end());
-      
+      //cout << "v1.size: " << v1.size() << endl;
       for(int i = 0; i < v1.size(); i++)
       {
+	  //cout << v1[i];
 	  n1 <<= 1;
 	  if(v1[i])
 	    n1 |= 1;
       }
-      
+      //cout << endl;
+      //cout << "v2.size: " << v2.size() << endl;
       for(int i = 0; i < v2.size(); i++)
       {
+	//cout << v2[i];
 	 n2 <<= 1;
 	 if(v2[i])
 	   n2 |= 1;
       }
+      //cout << endl;
       //cout << "QuadS: " << position << " " << quadS << endl;
       for(int i = position; i < position + quadS; i++)
       {
@@ -318,6 +320,8 @@ void QuadCodeStructure::PrintFirstPoints(int n)
 	  //cout << i << endl;
 	  int numOnes = pathNextBitmap->bitSeq->rank1(i);
 	  int nextPos = pathLenBitmap->bitSeq->select1(numOnes) + 1; 
+	  
+	  //cout << "nextPos: " << nextPos << endl;
 	  
 	  long newParentCode = parentCode;
 	  
@@ -341,9 +345,16 @@ void QuadCodeStructure::PrintFirstPoints(int n)
       bool b = true;
       if(quadS % 2 != 0)
 	b = false;
-      
+      //n1 = n2 = 0;
+      int n3 = 0;
       for(int i = position; i < position + quadS; i++)
       {
+	//cout << GetPathBitAt(i) << "(" << i << ")";
+	
+	n3 <<= 1;
+	if(GetPathBitAt(i))
+	  n3 |= 1;
+	
 	if(b)
 	{
 	    n2 <<= 1;
@@ -359,8 +370,8 @@ void QuadCodeStructure::PrintFirstPoints(int n)
 	
 	b = !b;
       }
-      
-      cout << n2 << " " << n1 << endl;
+      //cout << endl;
+      cout << n2 << " " << n1 << endl;// << n3 << endl;
       n--;
   }
 }
@@ -370,7 +381,37 @@ int QuadCodeStructure::GetPathBitAt(int position)
   int idx = position / WL;
   int np  = position % WL;
   
-  return (pathBitmap->bitmap[idx] >> (WL - np - 1)) & 1;
+  unsigned long m = pathBitmap->bitmap[idx];
+  
+  int tmpIdx = pathBitmap->len / WL;
+  
+  int lastLen = pathBitmap->len - (WL * tmpIdx);
+  
+  //if(pathBitmap->len % WL != 0)
+  //  tmpIdx++;
+  
+  int offset = WL - np;
+  if(idx == tmpIdx)
+    offset = lastLen - np;
+  
+  
+  int r = 0;
+  while(offset-- > 0) 
+  {
+     r = m % 2;
+     
+     //cout << "offset: " << offset << endl;
+     
+     //cout << r;
+     m /= 2;
+  }
+  //cout << endl;
+  
+  return r;
+  
+  //cout << "idx: " << idx << ", np: " << np << endl;
+  
+  //return (pathBitmap->bitmap[idx] >> (WL - np - 1)) & 1;
 }
 
 void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
