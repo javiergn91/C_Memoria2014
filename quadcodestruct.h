@@ -7,7 +7,12 @@ class QuadCodeStructure
 {
 public:
     QuadCodeStructure();
-  
+    
+    SPBitmap* pathVec;
+    int* lenVec;
+    //uint** nextVec;
+    BitSequence** bitSequence;
+    
     void setPathBitmap(SPBitmap* bitmap) { pathBitmap = bitmap; }
     void setPathLenBitmap(SPBitmap* bitmap) { pathLenBitmap = bitmap; }
     void setPathNextBitmap(SPBitmap* bitmap) { pathNextBitmap = bitmap; }

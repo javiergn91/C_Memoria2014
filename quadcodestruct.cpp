@@ -309,68 +309,73 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
 
 bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
 {
-  /*
-  cout << "QUADCODE: ";
-  vector<int> v;
-  unsigned long tmp = bitmap;
-  while(tmp)
+  int currPos = 1;
+  int currH = 0;
+  int height = len - 1; //not always true. 
+  //cout << "H: " << height << endl;
+  while(1)
   {
-      v.push_back(tmp % 2);
-      tmp /= 2;
-  }
-  int l = len - v.size();
-  while(l--)
-    cout << "0";
-  reverse(v.begin(), v.end());
-  for(int i = 0; i < v.size(); i++)
-    cout << v[i];
-  cout << endl << endl;
-    */
-  int currPos = 0;
-  int position;
-  
-  unsigned long zero = 0;
-  int cnt = 0;
-  while(true)
-  { 
-    //cout << "CurrPos: " << currPos << endl;
-    position = pathBitmap->XOR(bitmap, currPos, len);
-    //cout << "Position: " << position << endl;
-    
-    cnt++;
-    if(position == -1)
-    {
-      //cout << "C: " << cnt << endl;
-      return true;
-    
+      int position = pathVec->XOR(bitmap, currPos, len);
+      cout << "Position: " << position << ", currPos: " << currPos << " Quad: " << len << endl;
       
-    }
-    else
-    {
-	uint bit = (pathNextBitmap->bitSeq->access(position)) ? 1 : 0;
+      if(position == -1)
+	return true;
       
-	if(bit == 1)
-	{
-	  int offset = (position + 1 - currPos);
-	  len -= offset;
-	  bitmap &= ~(~zero << len);
-	}
-	
-	if(bit == 0)
-	{
-	  return false;
-	}
-	else if(bit == 1 && len <= 0)
-	{
-	  return true;
-	}
-	else if(bit == 1)
-	{
-	  int numOnes = pathNextBitmap->bitSeq->rank1(position);
-	  currPos = pathLenBitmap->bitSeq->select1(numOnes) + 1; 
-	}
-    }
-    
+      int offset = position - currPos;
+      int lastLen = len;
+      len -= offset;
+      
+      //cout << "len: " << offset << endl;
+      
+      bitmap &= ~(~0 << len);
+      //bitmap <<= offset;
+      //bitmap >>= offset;
+      /*
+      cout << "lenVec[currH]: " << lenVec[currH] << endl;
+      
+      int L = lenVec[currH + 1] - lenVec[currH];
+      cout << "Len: " << L << endl;
+      
+      int L2 = L - (position - 1 - lenVec[currH]);
+      L -= L2;
+      */
+      
+      int L = (height - 1) - (lastLen - (position - currPos) - 1) + 1;
+      
+      if(currH == 0)
+	L = position - 1;
+      
+      cout << "L: " << L << endl;
+      
+   //   if(currH != 0)
+	//L++;
+      
+      cout << "currH:"  << currH << endl;
+      
+      //cout << "L: " << L << endl;
+      int bit = bitSequence[L]->access(currH);
+      
+      
+      //cout << "bit: " << bit << endl;
+      
+      if(bit == 0)
+	return false;
+      
+      //cout << "asda#" << endl;
+      int rank = bitSequence[L]->rank1(currH);
+      cout << "rank: " << rank << endl;
+      
+      //currH++;
+      
+      //currH = L;
+      
+      cout << "len: " << lenVec[L + 1] << ", rank: " << (rank - 1) * len << endl;
+      currPos = lenVec[L + 1] + (rank - 1) * len;// + (lenVec[L + 2] - lenVec[L + 1] - 1) * (rank - 1);
+      currH = L + rank;
+      //cout << "currPos: " << currPos << endl;
+      //return false;
+      //cout << "========" << endl;
+      //return false;
   }
   
   return false;

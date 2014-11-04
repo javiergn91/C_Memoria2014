@@ -100,6 +100,9 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
     queue< pair<TrieNode*, int> > *Q = new queue< pair<TrieNode*, int> >[height + 1];
     Q[0].push(make_pair(root, 0));
     
+    //lenVector.push_back(0);
+    int lastHRegistered = 0;
+    
     while(1)
     {
       int currHeight = -1;
@@ -109,8 +112,16 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
       {
 	if(Q[i].size() > 0)
 	{
+	    
 	  
 	  currHeight = i;
+	  
+	  if(currHeight != lastHRegistered)
+	  {
+	      lenVector.push_back(pathVector.size());
+	      lastHRegistered = currHeight;
+	  }
+	  
 	  //cout << "currHeight: " << currHeight << endl;
 	  pair<TrieNode*, int> p = Q[i].front();
 	  currNode = p.first;
@@ -175,10 +186,26 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 	  tmpHeight++;
       }
   
+      //lenVector.push_back(pathVector.size());
+  
+      /*
+      if(lenVector.size() <= 1)
+	lenVector.push_back(pathVector.size());
+      else
+      {
+	int newDiff = pathVector.size() - lenVector[lenVector.size() - 1];
+	int lastDiff = lenVector[lenVector.size() - 1] - lenVector[lenVector.size() - 2];
+	
+	if(newDiff != lastDiff)
+	  lenVector.push_back(pathVector.size());
+      }
+      */
+      /*
       if(lenVector.size() == 1 || (lenVector[lenVector.size() - 2] + cnt) != lenVector[lenVector.size() - 1])
       {
     	lenVector.push_back(lenVector[lenVector.size() - 1] + cnt);
       }
+      */
       
     }
       //cout << "cnt: " << cnt << endl;
@@ -187,7 +214,7 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 	cout << pathVector[i];
     }
     cout << endl;
-  
+  /*
     for(int i = 0; i < lenVector.size(); i++)
     {
 	cout << lenVector[i] << " ";
@@ -203,129 +230,72 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 	}
 	cout << endl;
     }
-    
-    //Q[0].push(QueueContainer(NULL, 2));
-    //Q[1].push(QueueContainer(NULL, 2));
-    //cout << Q[1].size() << endl;
-    //vector<bool> pathsAux;
-    //vector<bool> pathLensAux;
-    //vector<bool> pathNextsAux;
-    
-    //unsigned long* paths = NULL;
-    //uint* pathLens = NULL;
-    //uint* pathNexts = NULL;
-
-    //int totalSize = 0;
-  
-    /*
-    queue< pair<TrieNode*, bool> > Q;
-    Q.push(make_pair(root, ZERO));
-
-    while(!Q.empty())
+    */
+   /*
+    vector<int> tmpVector;
+    tmpVector.push_back(0);
+    int lastDiff = -1;
+    for(int i = 1; i < lenVector.size(); i++)
     {
-      pair<TrieNode*, bool> curr = Q.front();
-      TrieNode* currNode = curr.first;
-      Q.pop();
-
-      if(IsLeaf(currNode)) {
-	pathsAux.push_back(curr.second);
-	pathLensAux.push_back(ONE);
-	pathNextsAux.push_back(ZERO);
-	totalSize++;
-	continue;
-      }
-
-      int pathLength = 0;
-	
-      while(currNode != NULL && !IsLeaf(currNode)) {
-	pathLength++;
-	pathLensAux.push_back(ZERO);
-	
-	bool bThereIsNext = false;
-	      
-	if(currNode->leftChild == NULL || (currNode->rightChild != NULL && currNode->rightChild->numSubtreeLeafs > currNode->leftChild->numSubtreeLeafs)) {
-	  pathsAux.push_back(ONE);
-	  if(currNode->leftChild != NULL) {
-	    bThereIsNext = true;
-	    
-	    Q.push(make_pair(currNode->leftChild, ZERO));
-	  }
-	    
-	  currNode = currNode->rightChild;
-	} else {
-	  pathsAux.push_back(ZERO);
-	  if(currNode->rightChild != NULL) {
-	    bThereIsNext = true;
-	    Q.push(make_pair(currNode->rightChild, ONE));
-	  }
-	  
-	  currNode = currNode->leftChild;
-	}
-	
-	pathNextsAux.push_back(bThereIsNext);
-      }
-      
-      totalSize += pathLength;
-      pathLensAux[totalSize - 1] = ONE;
+	int newDiff = lenVector[i] - lenVector[i - 1];
+	if(newDiff != lastDiff)
+	  tmpVector.push_back(lenVector[i]);
+	lastDiff = newDiff;
     }
     
-    int pathN = pathsAux.size() / 64 + 1;
-    paths = new unsigned long[pathN];
-    pathLens = new uint[uint_len(pathsAux.size(),1)];
-    pathNexts = new uint[uint_len(pathsAux.size(),1)];
-
+    lenVector.clear();
+    for(int i = 0; i < tmpVector.size(); i++)
+      lenVector.push_back(tmpVector[i]);
+   */
+    int pathN = pathVector.size() / 64 + 1;
+    unsigned long *paths = new unsigned long[pathN];
+    int *lens = new int[lenVector.size()];
+    uint **nexts = new uint*[height];
+    
+    for(int i = 0; i < height; i++)
+    {
+	nexts[i] = new uint[uint_len(nextVector[i].size(), 1)];
+	for(int j = 0; j < nextVector[i].size(); j++)
+	{
+	    if(nextVector[i][j] == 1)
+	      bitset(nexts[i], j);
+	    else
+	      bitclean(nexts[i], j);
+	}
+    }
+    
     for(int i = 0; i < pathN; i++)
       paths[i] = 0;
     
     int W2 = 64;
-    //cout << pathsAux.size() << endl;
-    for(int i = 0; i < (int)pathsAux.size(); i++)
+    for(int i = 0; i < (int)pathVector.size(); i++)
     {
-	//cout << (pathsAux[i] == ONE) ? 1 : 0;
-      
 	int idx = i / W2;
       
 	paths[idx] <<= 1;
 
-	if(pathsAux[i] == ONE)
+	if(pathVector[i] == ONE)
 	  paths[idx] |= 1;	 
     }
-    //cout << endl;
     
-    for(int i = 0; i < (int)pathLensAux.size(); i++) 
+    for(int i = 0; i < lenVector.size(); i++)
     {
-      if(pathLensAux[i] == ONE) 
-      {
-	bitset(pathLens, i);
-      }
-      else
-      {
-	bitclean(pathLens, i);
-      }
+	lens[i] = lenVector[i];
+	cout << lens[i] << ", ";
     }
+    cout << endl;
+      
+    structure->pathVec = new SPBitmap();
+    structure->pathVec->bitmap = paths;
+    structure->pathVec->len = pathVector.size();
     
-    for(int i = 0; i < (int)pathNextsAux.size(); i++)
+    structure->lenVec = lens;
+    
+    structure->bitSequence = new BitSequence*[height];
+    for(int i = 0; i < height; i++)
     {
-      if(pathNextsAux[i] == ONE) 
-      {
-	bitset(pathNexts, i);
-      }
-      else
-      {
-	bitclean(pathNexts, i);
-      }
+	structure->bitSequence[i] = new BitSequenceRRR(nexts[i], nextVector[i].size());
     }
-        
-    structure->pathBitmap = new SPBitmap();
-    structure->pathBitmap->bitmap = paths;
-    structure->pathBitmap->len = pathsAux.size();
-    
-    structure->pathNextBitmap = new SPBitmap();
-    structure->pathNextBitmap->bitSeq = new BitSequenceRRR(pathNexts, pathNextsAux.size());
-    
-    structure->pathLenBitmap = new SPBitmap();
-    structure->pathLenBitmap->bitSeq = new BitSequenceRRR(pathLens, pathLensAux.size());
-    */
 }
 
 void Trie::CreateSubtree(vector<bool>* v, int startIndex, TrieNode* currNode)

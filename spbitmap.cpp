@@ -195,6 +195,9 @@ int SPBitmap::XOR(uint* op, int initBitPos, int queryLen)
 
 int SPBitmap::XOR(unsigned long op, int initBitPos, int queryLen)
 {
+   //   int n = len / WL + 1;
+  //int lastIdxSize = len % WL;
+  
     int initIndex = initBitPos / WL;
     int finalIndex = (initBitPos + queryLen - 1) / WL;
     unsigned long result = -1; 
@@ -205,7 +208,12 @@ int SPBitmap::XOR(unsigned long op, int initBitPos, int queryLen)
     if(initIndex == finalIndex) 
     {
       unsigned long word = bitmap[initIndex];
+     
       
+      //cout << "n: " << n << ", lastIdxSize: " << lastIdxSize << endl;
+      //cout << "finalIndex: " << finalIndex << endl;
+      Utils::PrintLong(word);
+      Utils::PrintLong(op);
       unsigned long wordOP = op;
        
       int l = initBitPos % WL;

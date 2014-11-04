@@ -202,6 +202,16 @@ int main(int argc, char** argv)
   QuadCodeStructure* q = new QuadCodeStructure();
   t.CalculateNumberOfLeafsOfEachNode();
   t.BuildPathDecomposition(q);
+  
+  if(q->CheckPoint(Utils::QuadCode(3, 6), 8))
+  {
+      cout << "Y" << endl;
+  }
+  else
+  {
+      cout << "N" << endl;
+  }
+  
   delete q;
   
   return 0;
