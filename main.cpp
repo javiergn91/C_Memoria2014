@@ -184,6 +184,43 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 int main(int argc, char** argv)
 {
   /*
+  ofstream myFile("ToyExample.bin", ios::binary);
+  
+  int n = 10;
+  myFile.write((char*)&n, sizeof(int));
+  
+  unsigned long m = 13;
+  myFile.write((char*)&m, sizeof(unsigned long));
+  
+  
+  n = -1;  myFile.write((char*)&n, sizeof(int));
+  n = 4;  myFile.write((char*)&n, sizeof(int));
+  n = -2;  myFile.write((char*)&n, sizeof(int));
+  n = -3;  myFile.write((char*)&n, sizeof(int));
+  n = 2;  myFile.write((char*)&n, sizeof(int));
+  n = -4;  myFile.write((char*)&n, sizeof(int));
+  n = 2;  myFile.write((char*)&n, sizeof(int));
+  n = -5;  myFile.write((char*)&n, sizeof(int));
+  n = 2;  myFile.write((char*)&n, sizeof(int));
+  n = 10;  myFile.write((char*)&n, sizeof(int));
+  n = -6;  myFile.write((char*)&n, sizeof(int));
+  n = -7;  myFile.write((char*)&n, sizeof(int));
+  n = 4;  myFile.write((char*)&n, sizeof(int));
+  n = 8;  myFile.write((char*)&n, sizeof(int));
+  n = 9;  myFile.write((char*)&n, sizeof(int));
+  n = 10;  myFile.write((char*)&n, sizeof(int));
+  n = -8;  myFile.write((char*)&n, sizeof(int));
+  n = 6;  myFile.write((char*)&n, sizeof(int));
+  n = -9;  myFile.write((char*)&n, sizeof(int));
+  n = 6;  myFile.write((char*)&n, sizeof(int));
+  n = 7;  myFile.write((char*)&n, sizeof(int));
+  n = -10; myFile.write((char*)&n, sizeof(int));
+  n = 3;  myFile.write((char*)&n, sizeof(int));
+  
+  myFile.close();
+  return 0;
+  */
+  /*
   Trie t;
   auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 0);
   auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 1);
@@ -518,7 +555,14 @@ int main(int argc, char** argv)
       structure->Load(argv[2]);  
       
       int N = structure->universeSize;
-      long numElements = structure->pathNextBitmap->bitSeq->countOnes() + 1;
+      //long numElements = structure->pathNextBitmap->bitSeq->countOnes() + 1;
+      
+      long numElements = 1;
+      for(int i = 0; i < structure->quadCodeSize; i++)
+      {
+	numElements += structure->bitSequence[i]->countOnes();
+      }
+      
       myFile.write((char*)&N, sizeof(int));
       myFile.write((char*)&numElements, sizeof(long));
       
@@ -527,19 +571,19 @@ int main(int argc, char** argv)
       for(int i = 0; i < N; i++)
       {	
 	int nNode = -(i + 1);
-	printf("%d/%d\n", -nNode, N);
-	
-	//if(nNode < -100)
-	//  return 0;
+	//printf("%d/%d\n", -nNode, N);
 	
 	int cnt = 0;
 	tmpArr[cnt++] = nNode;
 	for(int j = 0; j < N; j++)
 	{
 	  int n = j + 1;
-	  //Utils::QuadCode(j, i);
+	  
 	  if(structure->CheckPoint(Utils::QuadCode(j, i), structure->quadCodeSize))
+	  {
+	    cout << j << " " << i << endl;
 	    tmpArr[cnt++] = n;
+	  }
 	}
 	
 	myFile.write((char*)tmpArr, sizeof(int) * cnt);

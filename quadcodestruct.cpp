@@ -3,6 +3,7 @@
 #include "utils.h"
 #include <libcdsBasics.h>
 #include <algorithm>
+#include <stdlib.h>
 
 using namespace cds_utils;
 
@@ -27,31 +28,40 @@ void QuadCodeStructure::Save(const char* filename)
 {
   string filenameStr = filename;
   ofstream pathFile((filenameStr + ".path").c_str(), ios::binary);
-  ofstream pathNextFile((filenameStr + ".nextpath").c_str());
-  ofstream pathLenFile((filenameStr + ".lenpath").c_str());
+  ofstream pathLenFile((filenameStr + ".lenpath").c_str(), ios::binary);
   
-  cout << universeSize << endl;
-  cout << quadCodeSize << endl;	
-  cout << pathBitmap->len << endl;
+  cout << "Data: ";
+  cout << universeSize << " " << quadCodeSize << " " << pathVec->len << endl;
   
   pathFile.write((char*)&universeSize, sizeof(int));
   pathFile.write((char*)&quadCodeSize, sizeof(int));
-  pathFile.write((char*)&pathBitmap->len, sizeof(int));
-  //pathFile.write((char*)pathBitmap->bitmap, uint_len(pathBitmap->len, 1));
+  pathFile.write((char*)&pathVec->len, sizeof(int));
   
-  int bytes = pathBitmap->len / 64 + 1;//uint_len(pathBitmap->len, 1);
+  int bytes = pathVec->len / 64 + 1;
   
   for(int i = 0; i < bytes; i++)
   {
-    pathFile.write((char*)&pathBitmap->bitmap[i], sizeof(unsigned long));
-    //cout << (uint)pathBitmap->bitmap[i] << endl;
+    pathFile.write((char*)&pathVec->bitmap[i], sizeof(unsigned long));
   }
   
-  pathNextBitmap->bitSeq->save(pathNextFile);
-  pathLenBitmap->bitSeq->save(pathLenFile);
+  for(int i = 0; i <= quadCodeSize; i++)
+  {
+    cout << lenVec[i] << endl;
+    pathLenFile.write((char*)&lenVec[i], sizeof(int));
+  }
+  
+  for(int i = 0; i < quadCodeSize; i++)
+  {
+    stringstream ss;
+    ss << i;
+    string str = ss.str();
+    
+    ofstream pathNextFile((filenameStr + ".nextpath." + str).c_str());
+    bitSequence[i]->save(pathNextFile);
+    pathNextFile.close();
+  }
   
   pathFile.close();
-  pathNextFile.close();
   pathLenFile.close();
 }
 
@@ -59,82 +69,57 @@ void QuadCodeStructure::Load(const char* filename)
 { 
   string filenameStr = filename;
   ifstream pathFile((filenameStr + ".path").c_str(), ios::binary);
-  ifstream pathNextFile((filenameStr + ".nextpath").c_str());
-  ifstream pathLenFile((filenameStr + ".lenpath").c_str());
+  ifstream pathLenFile((filenameStr + ".lenpath").c_str(), ios::binary);
   
-  pathBitmap = new SPBitmap();
-  pathNextBitmap = new SPBitmap();
-  pathLenBitmap = new SPBitmap();
-  
+  pathVec = new SPBitmap();
+
   pathFile.read((char*)&universeSize, sizeof(int));
   pathFile.read((char*)&quadCodeSize, sizeof(int));
-  pathFile.read((char*)&pathBitmap->len, sizeof(int));
-  
-  //cout << "Quadcode size: " << quadCodeSize << endl;
-  //cout << "Len: " << pathBitmap->len << endl;
-  
-  int bytes = pathBitmap->len / 64 + 1;//uint_len(pathBitmap->len, 1);
-  pathBitmap->bitmap = new unsigned long[bytes];
-  
-  pathBitmap->n = pathBitmap->len / WL + 1;
-  pathBitmap->lastIdxSize = pathBitmap->len % WL;
+  pathFile.read((char*)&pathVec->len, sizeof(int));
 
+  //cout << "Data: ";
+  //cout << universeSize << " " << quadCodeSize << " " << pathVec->len << endl;
+  
+  
+  int bytes = pathVec->len / 64 + 1;
+  pathVec->bitmap = new unsigned long[bytes];
+  
   //cout << bytes << endl;
-  //pathBitmap->bitmap = new uint[bytes];
   
-  //cout << "Bytes: " << bytes << endl;
-  
-  //pathFile.read((char*)pathBitmap->bitmap, bytes);
-  
+  pathVec->n = pathVec->len / WL + 1;
+  pathVec->lastIdxSize = pathVec->len % WL;
+
   for(int i = 0; i < bytes; i++)
   {
-    pathFile.read((char*)&pathBitmap->bitmap[i], sizeof(unsigned long));
-    //cout << (uint)pathBitmap->bitmap[i] << endl;
+    pathFile.read((char*)&pathVec->bitmap[i], sizeof(unsigned long));
   }
   
-  pathNextBitmap->bitSeq = BitSequence::load(pathNextFile);
-  pathLenBitmap->bitSeq = BitSequence::load(pathLenFile);
+  lenVec = new int[quadCodeSize + 1];
+  for(int i = 0; i <= quadCodeSize; i++)
+  {
+    pathLenFile.read((char*)&lenVec[i], sizeof(int));
+    //cout << lenVec[i] << endl;
+  }
+  
+  bitSequence = new BitSequence*[quadCodeSize];
+  for(int i = 0; i < quadCodeSize; i++)
+  {
+    stringstream ss;
+    ss << i;
+    string str = ss.str();
+    
+    ifstream pathNextFile((filenameStr + ".nextpath." + str).c_str(), ios::binary);
+    bitSequence[i] = BitSequence::load(pathNextFile);
+    pathNextFile.close();
+  }
   
   pathFile.close();
-  pathNextFile.close();
   pathLenFile.close();  
 }
 
 bool QuadCodeStructure::RangeEmptyQuery(Point upperLeftPoint, Point bottomRightPoint)
 {
-  BitmapWrapper P1, P2;
-  Utils::CreateQuadCode(upperLeftPoint.x, upperLeftPoint.y, &P1, quadCodeSize);
-  Utils::CreateQuadCode(bottomRightPoint.x, bottomRightPoint.y, &P2, quadCodeSize);
-  
-  uint wordXOR = P1.bitmap[0] ^ P2.bitmap[0];
-  //cout << "wordXOR: " << wordXOR << endl;
-  wordXOR &= wordXOR & ~(wordXOR - 1);
- 
-  int nBits = bits(wordXOR) - 1;
-  
-  if(nBits == 0 && P1.bitmap[0] != P2.bitmap[0])
-  {
-    //cout << "dsada" << endl;
-    return pathBitmap->GetLen() > 0;
-  }
-  
-  if(wordXOR == 0)
-  {
-    //for(int i = 0; i < quadCodeSize; i++) cout << bitget(P1.bitmap, i); cout << endl;
-    return CheckBitmap(P1.bitmap, quadCodeSize, NULL);
-  }
-  
-  
-  uint word = P1.bitmap[0] & ~(~0 << (nBits));
-  
-  /*
-  cout << endl;
-  for(int i = 0; i < quadCodeSize; i++) cout << bitget(P1.bitmap, i); cout << endl;
-  for(int i = 0; i < quadCodeSize; i++) cout << bitget(P2.bitmap, i); cout << endl;
-  for(int i = 0; i < quadCodeSize; i++) cout << bitget(&wordXOR, i); cout << endl;
-  for(int i = 0; i < nBits; i++) cout << bitget(&word, i); cout << endl;
-  */
-  return quadCodeSize - nBits > 0 && CheckBitmap(&word, nBits, NULL);
+  return false;
 }
 
 void QuadCodeStructure::GetQuad(int pos, int parentCode, int bitsRemaining)
@@ -239,6 +224,7 @@ void QuadCodeStructure::PrintPointList()
 
 void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
 {
+  /*
   if(x1 == x2 && y1 == y2)
   {
     BitmapWrapper bw;
@@ -305,6 +291,7 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
 
   //cout << "Parent Code: " << parentCode << endl;
   GetQuad(p + 1, parentCode, quadCodeSize - failAt);
+  */
 }
 
 bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
@@ -379,87 +366,6 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
       //return false;
       //cout << "========" << endl;
       //return false;
-  }
-  
-  return false;
-}
-
-bool QuadCodeStructure::CheckBitmap(uint* bitmap, int len, int* pathPos)
-{
-  int currPos = 0;
- 
-  while(true)
-  { 
-    int position = 0;
-    
-    if(len > W)
-    {
-      position = pathBitmap->XOR(bitmap[0], currPos, W);
-      if(position == -1)
-      {
-	position = pathBitmap->XOR(bitmap[1], currPos + W, len - W);
-      }
-    }
-    else
-    {
-      position = pathBitmap->XOR(bitmap[0], currPos, len);
-    }
-     
-    if(position == -1)
-    {
-      if(pathPos != NULL)
-	*pathPos = currPos + len - 1;
-    
-      return true;
-    }
-    else
-    {
-	uint bit = (pathNextBitmap->bitSeq->access(position)) ? 1 : 0;
-      
-	if(bit == 1)
-	{
-	  int offset = (position + 1 - currPos);
-	    
-	  if(offset >= W)
-	  {
-	      offset -= W;
-	      bitmap[0] = bitmap[1];
-	  }
-	  
-	  if(len > W)
-	  {  
-	    bitmap[0] >>= offset;
-	    
-	    bitmap[0] = (bitmap[1] & ~(~0 << (offset))) << (W - offset) | bitmap[0];// | (bitmap[0] >> offset);// (W - offset);
-	    bitmap[1] >>= offset; 		      
-	  }
-	  else
-	  {
-	    *bitmap >>= (position + 1 - currPos);
-	  }
-	   
-	  len -= (position + 1 - currPos);
-	}
-	
-	if(bit == 0)
-	{
-	  return false;
-	}
-	else if(bit == 1 && len <= 0)
-	{
-	  if(pathPos != NULL)
-	  {
-	    int numOnes = pathNextBitmap->bitSeq->rank1(position);//->Rank(1, position); //cout << "ONES: " << numOnes << endl;
-	    *pathPos = pathLenBitmap->bitSeq->select1(numOnes);
-	  }
-	  return true;
-	}
-	else if(bit == 1)
-	{
-	  int numOnes = pathNextBitmap->bitSeq->rank1(position);//->Rank(1, position); //cout << "ONES: " << numOnes << endl;
-	  currPos = pathLenBitmap->bitSeq->select1(numOnes) + 1; //Select(1, numOnes) + 1;
-	}
-    }
   }
   
   return false;

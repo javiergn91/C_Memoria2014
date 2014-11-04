@@ -209,11 +209,12 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
       
     }
       //cout << "cnt: " << cnt << endl;
-   
+   /*
     for(int i = 0; i < pathVector.size(); i++) {
 	cout << pathVector[i];
     }
     cout << endl;
+    */
   /*
     for(int i = 0; i < lenVector.size(); i++)
     {
@@ -281,9 +282,9 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
     for(int i = 0; i < lenVector.size(); i++)
     {
 	lens[i] = lenVector[i];
-	cout << lens[i] << ", ";
+	//cout << lens[i] << ", ";
     }
-    cout << endl;
+    //cout << endl;
       
     structure->pathVec = new SPBitmap();
     structure->pathVec->bitmap = paths;

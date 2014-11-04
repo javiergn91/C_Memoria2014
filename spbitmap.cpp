@@ -212,8 +212,8 @@ int SPBitmap::XOR(unsigned long op, int initBitPos, int queryLen)
       
       //cout << "n: " << n << ", lastIdxSize: " << lastIdxSize << endl;
       //cout << "finalIndex: " << finalIndex << endl;
-      Utils::PrintLong(word);
-      Utils::PrintLong(op);
+      //Utils::PrintLong(word);
+      //Utils::PrintLong(op);
       unsigned long wordOP = op;
        
       int l = initBitPos % WL;
