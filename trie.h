@@ -44,6 +44,8 @@ public:
     bool IsLeaf(TrieNode* node);
     int getSize() { return numNodes; };
 
+    int height;
+    
 private:
     TrieNode* root;
     void CreateSubtree(vector<bool>* v, int startIndex, TrieNode* currNode);

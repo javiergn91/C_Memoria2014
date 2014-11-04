@@ -13,10 +13,24 @@ using namespace std;
 
 #include <BitSequenceRG.h>
 
+class QueueContainer
+{
+public:
+  TrieNode* node;
+  int height;
+  
+  QueueContainer(TrieNode* node, int height)
+  {
+    this->node = node;
+    this->height = height;
+  }
+};
+
 Trie::Trie()
 {
     root = new TrieNode();
     numNodes = 1;
+    height = 0;
 }
 
 Trie::~Trie()
@@ -40,6 +54,8 @@ void Trie::DeleteTrieFromMemory(TrieNode* node)
 
 void Trie::AddVector(vector<bool> *v)
 {
+    height = max(height, (int)v->size());
+  
     TrieNode* currNode = root;
 
     for(int i = 0; i < (int)v->size(); i++)
@@ -67,22 +83,141 @@ void Trie::AddVector(vector<bool> *v)
             {
                 currNode = currNode->rightChild;
             }
-        }
+	}
+        
     }
 }
 
 void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 {
-    vector<bool> pathsAux;
-    vector<bool> pathLensAux;
-    vector<bool> pathNextsAux;
+    vector<int> pathVector;
+    vector<int> lenVector;
+    vector< vector<int> > nextVector(height + 1);
+    //pathVector.push_back(0);
     
-    unsigned long* paths = NULL;
-    uint* pathLens = NULL;
-    uint* pathNexts = NULL;
+    lenVector.push_back(0);
+    
+    queue< pair<TrieNode*, int> > *Q = new queue< pair<TrieNode*, int> >[height + 1];
+    Q[0].push(make_pair(root, 0));
+    
+    while(1)
+    {
+      int currHeight = -1;
+      TrieNode* currNode = NULL;
+      
+      for(int i = 0; i <= height; i++)
+      {
+	if(Q[i].size() > 0)
+	{
+	  
+	  currHeight = i;
+	  //cout << "currHeight: " << currHeight << endl;
+	  pair<TrieNode*, int> p = Q[i].front();
+	  currNode = p.first;
+	  pathVector.push_back(p.second);
+	  Q[i].pop();
+	  break;
+	}
+      }
+      //cout << currHeight << endl;
+      if(currHeight == -1)
+      {
+	break;
+      }
+      
+      TrieNode* tmpNode = currNode;
+      int tmpHeight = currHeight;
+      int cnt = 1;
+      while(tmpNode != NULL)
+      {	
+	/*
+	if(tmpNode->leftChild == NULL && tmpNode->rightChild == NULL)
+	  break;	
+	*/
+	if(tmpHeight >= height)
+	  break;
+	
+	cnt++;
+	
+	bool bHasNext = false;
+	
+	//cout << "tmpHeight: " << tmpHeight << endl;
+	  if(currNode->leftChild == NULL || 
+	    (currNode->rightChild != NULL && 
+	     currNode->rightChild->numSubtreeLeafs > currNode->leftChild->numSubtreeLeafs)) 
+	  {
+	    pathVector.push_back(1);
+	    
+	    if(currNode->leftChild != NULL) {
+	      bHasNext = true;
+	      nextVector[tmpHeight].push_back(1);
+	      Q[tmpHeight + 1].push(make_pair(currNode->leftChild, 0));
+	    }
+	      
+	    currNode = currNode->rightChild;
+	  } else {
+	    pathVector.push_back(0);
+	    
+	    if(currNode->rightChild != NULL) {
+	      bHasNext = true;
+	      nextVector[tmpHeight].push_back(1);
+	      Q[tmpHeight + 1].push(make_pair(currNode->rightChild, 1));
+	    }
+	
+	    currNode = currNode->leftChild;
+	  }
+	  
+	  if(!bHasNext)
+	  {
+	    nextVector[tmpHeight].push_back(0);
+	  }
+	  
+	  tmpHeight++;
+      }
+  
+      if(lenVector.size() == 1 || (lenVector[lenVector.size() - 2] + cnt) != lenVector[lenVector.size() - 1])
+      {
+    	lenVector.push_back(lenVector[lenVector.size() - 1] + cnt);
+      }
+      
+    }
+      //cout << "cnt: " << cnt << endl;
+   
+    for(int i = 0; i < pathVector.size(); i++) {
+	cout << pathVector[i];
+    }
+    cout << endl;
+  
+    for(int i = 0; i < lenVector.size(); i++)
+    {
+	cout << lenVector[i] << " ";
+    }
+    cout << endl;
+    
+    for(int i = 0; i < height; i++)
+    {
+	cout << "Height " << i << ": ";
+	for(int j = 0; j < nextVector[i].size(); j++)
+	{
+	    cout << nextVector[i][j];
+	}
+	cout << endl;
+    }
+    
+    //Q[0].push(QueueContainer(NULL, 2));
+    //Q[1].push(QueueContainer(NULL, 2));
+    //cout << Q[1].size() << endl;
+    //vector<bool> pathsAux;
+    //vector<bool> pathLensAux;
+    //vector<bool> pathNextsAux;
+    
+    //unsigned long* paths = NULL;
+    //uint* pathLens = NULL;
+    //uint* pathNexts = NULL;
 
-    int totalSize = 0;
-
+    //int totalSize = 0;
+  
+    /*
     queue< pair<TrieNode*, bool> > Q;
     Q.push(make_pair(root, ZERO));
 
@@ -190,6 +325,7 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
     
     structure->pathLenBitmap = new SPBitmap();
     structure->pathLenBitmap->bitSeq = new BitSequenceRRR(pathLens, pathLensAux.size());
+    */
 }
 
 void Trie::CreateSubtree(vector<bool>* v, int startIndex, TrieNode* currNode)

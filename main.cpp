@@ -74,17 +74,17 @@ void parseTXTFile(string filename)
     myFile.close();
 }
 
-void auxFunc(Trie* t, int i1, int i2, int i3, int i4) {
+void auxFunc(Trie* t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8) {
     vector<bool> v;
     v.clear();
     v.push_back(i1);
     v.push_back(i2);
     v.push_back(i3);
     v.push_back(i4);
-    //v.push_back(i5);
-    //v.push_back(i6);
-    //v.push_back(i7);
-    //v.push_back(i8);
+    v.push_back(i5);
+    v.push_back(i6);
+    v.push_back(i7);
+    v.push_back(i8);
     t->AddVector(&v);
 }
 
@@ -183,44 +183,29 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 
 int main(int argc, char** argv)
 {
-  	
-  //BitmapWrapper bw;
-  //Utils::CreateQuadCode(3, 2, &bw, 4);
-  //cout << bw.len << endl;
-  //bw.bitmap[0] = (uint)7;
-  /*
-  for(int i = 0; i < bw.len; i++)
-  {
-      cout << bitget(bw.bitmap, i);
-  }
-  cout << endl;
+  Trie t;
+  auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 0);
+  auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 1);
+  auxFunc(&t, 0, 0, 0, 0, 1, 0, 1, 0);
+  auxFunc(&t, 0, 0, 0, 0, 1, 0, 1, 1);
+  auxFunc(&t, 0, 0, 0, 1, 0, 0, 1, 0);
+  auxFunc(&t, 0, 0, 0, 1, 1, 1, 1, 0);
+  auxFunc(&t, 0, 0, 1, 1, 0, 1, 1, 1);
+  auxFunc(&t, 0, 0, 1, 1, 1, 1, 1, 0);
+  auxFunc(&t, 0, 1, 0, 0, 1, 0, 0, 1);
+  auxFunc(&t, 0, 1, 1, 0, 0, 0, 1, 0);
+  auxFunc(&t, 0, 1, 1, 0, 1, 0, 0, 0);
+  auxFunc(&t, 1, 0, 0, 1, 0, 0, 1, 0);
+  auxFunc(&t, 1, 0, 0, 1, 0, 1, 0, 0);
+  auxFunc(&t, 1, 0, 0, 1, 0, 1, 1, 0);
+  
+  QuadCodeStructure* q = new QuadCodeStructure();
+  t.CalculateNumberOfLeafsOfEachNode();
+  t.BuildPathDecomposition(q);
+  delete q;
   
   return 0;
-  */
-  /*
-  ofstream file("ToyExample.bin", ios::binary);
-  int n = 8;
-  long m = 6;
-  file.write((char*)&n, sizeof(int));
-  file.write((char*)&m, sizeof(long));
   
-  n = -1; file.write((char*)&n, sizeof(int));
-  n = 8;  file.write((char*)&n, sizeof(int));
-  n = -2; file.write((char*)&n, sizeof(int));
-  n = 2;  file.write((char*)&n, sizeof(int));
-  n = 8;  file.write((char*)&n, sizeof(int));
-  n = -3; file.write((char*)&n, sizeof(int));
-  n = 4;  file.write((char*)&n, sizeof(int));
-  n = 8;  file.write((char*)&n, sizeof(int)); 
-  n = -4; file.write((char*)&n, sizeof(int));
-  n = -5; file.write((char*)&n, sizeof(int));
-  n = -6; file.write((char*)&n, sizeof(int));
-  n = 3;  file.write((char*)&n, sizeof(int));
-  n = -7; file.write((char*)&n, sizeof(int));
-  n = -8; file.write((char*)&n, sizeof(int));
-  
-  file.close();
-  */
   if(argc <= 1)
   {
     cout << "--help to view the command list" << endl;
