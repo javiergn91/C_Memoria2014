@@ -316,7 +316,7 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
   while(1)
   {
       int position = pathVec->XOR(bitmap, currPos, len);
-      cout << "Position: " << position << ", currPos: " << currPos << " Quad: " << len << endl;
+      //cout << "Position: " << position << ", currPos: " << currPos << " Quad: " << len << endl;
       
       if(position == -1)
 	return true;
@@ -345,12 +345,12 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
       if(currH == 0)
 	L = position - 1;
       
-      cout << "L: " << L << endl;
+      //cout << "L: " << L << endl;
       
    //   if(currH != 0)
 	//L++;
       
-      cout << "currH:"  << currH << endl;
+      //cout << "currH:"  << currH << endl;
       
       //cout << "L: " << L << endl;
       int bit = bitSequence[L]->access(currH);
@@ -363,15 +363,18 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
       
       //cout << "asda#" << endl;
       int rank = bitSequence[L]->rank1(currH);
-      cout << "rank: " << rank << endl;
+      //cout << "rank: " << rank << endl;
       
       //currH++;
       
       //currH = L;
       
-      cout << "len: " << lenVec[L + 1] << ", rank: " << (rank - 1) * len << endl;
+      //cout << "len: " << lenVec[L + 1] << ", rank: " << (rank - 1) * len << endl;
       currPos = lenVec[L + 1] + (rank - 1) * len;// + (lenVec[L + 2] - lenVec[L + 1] - 1) * (rank - 1);
-      currH = L + rank;
+      
+      currH = bitSequence[L]->getLength();
+      
+      //currH = L + rank;
       //cout << "currPos: " << currPos << endl;
       //return false;
       //cout << "========" << endl;

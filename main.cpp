@@ -183,6 +183,7 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 
 int main(int argc, char** argv)
 {
+  /*
   Trie t;
   auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 0);
   auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 1);
@@ -203,7 +204,7 @@ int main(int argc, char** argv)
   t.CalculateNumberOfLeafsOfEachNode();
   t.BuildPathDecomposition(q);
   
-  if(q->CheckPoint(Utils::QuadCode(3, 6), 8))
+  if(q->CheckPoint(Utils::QuadCode(10, 6), 8))
   {
       cout << "Y" << endl;
   }
@@ -215,7 +216,7 @@ int main(int argc, char** argv)
   delete q;
   
   return 0;
-  
+  */
   if(argc <= 1)
   {
     cout << "--help to view the command list" << endl;
