@@ -481,9 +481,43 @@ int main(int argc, char** argv)
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
     
-    int reps = atoi(argv[4]);
-    while(reps--)
-      RunCheckPointTest(structure, argv[3]);
+    structure->pathVec->PrintBitmap(-1); cout << endl;
+    
+    for(int i = 0; i < structure->quadCodeSize; i++)
+    {
+      cout << "L" << i << ": ";
+      for(int j = 0; j < structure->bitSequence[i]->getLength(); j++)
+      {
+	  if(structure->bitSequence[i]->access(j))
+	    cout << "1";
+	  else
+	    cout << "0";
+      }
+      cout << endl;
+    }
+    
+    for(int i = 0; i < structure->quadCodeSize; i++)
+    {
+	cout << structure->lenVec[i] << " ";
+    }
+    cout << endl;
+    
+    int x, y;
+    while(cin >> x >> y)
+    {
+    cout << "(" << x << ", " << y << "): ";
+    if(structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize))
+    {
+	cout << "Y" << endl;
+    }
+    else
+    {
+	cout << "N" << endl;
+    }
+    }
+    //int reps = atoi(argv[4]);
+    //while(reps--)
+    //RunCheckPointTest(structure, argv[3]);
     
     delete structure;
     

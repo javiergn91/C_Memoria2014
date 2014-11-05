@@ -30,8 +30,8 @@ void QuadCodeStructure::Save(const char* filename)
   ofstream pathFile((filenameStr + ".path").c_str(), ios::binary);
   ofstream pathLenFile((filenameStr + ".lenpath").c_str(), ios::binary);
   
-  cout << "Data: ";
-  cout << universeSize << " " << quadCodeSize << " " << pathVec->len << endl;
+  //cout << "Data: ";
+  //cout << universeSize << " " << quadCodeSize << " " << pathVec->len << endl;
   
   pathFile.write((char*)&universeSize, sizeof(int));
   pathFile.write((char*)&quadCodeSize, sizeof(int));
@@ -46,7 +46,7 @@ void QuadCodeStructure::Save(const char* filename)
   
   for(int i = 0; i <= quadCodeSize; i++)
   {
-    cout << lenVec[i] << endl;
+    //cout << lenVec[i] << endl;
     pathLenFile.write((char*)&lenVec[i], sizeof(int));
   }
   
@@ -57,6 +57,17 @@ void QuadCodeStructure::Save(const char* filename)
     string str = ss.str();
     
     ofstream pathNextFile((filenameStr + ".nextpath." + str).c_str());
+    /*
+    cout << "L" << i << ": ";
+    for(int j = 0; j < bitSequence[i]->getLength(); j++)
+    {
+      if(bitSequence[i]->access(j))
+	cout << "1";
+      else
+	cout << "0";
+    }
+    cout << endl;
+    */
     bitSequence[i]->save(pathNextFile);
     pathNextFile.close();
   }
@@ -296,12 +307,18 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
 
 bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
 {
+  //Utils::PrintLong(bitmap); cout << endl;
+  
   int currPos = 1;
   int currH = 0;
   int height = len - 1; //not always true. 
   //cout << "H: " << height << endl;
+  
+  //lenVec[7] = 221;
   while(1)
   {
+      
+    
       int position = pathVec->XOR(bitmap, currPos, len);
       //cout << "Position: " << position << ", currPos: " << currPos << " Quad: " << len << endl;
       
@@ -310,11 +327,18 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
       
       int offset = position - currPos;
       int lastLen = len;
-      len -= offset;
       
+      //cout << "offset: " << offset << endl;
+      //cout << "====" << endl;
+      //Utils::PrintLong(bitmap); cout << endl;
+      len -= offset;
+      bitmap &= ~(~0 << len);
+      //Utils::PrintLong(bitmap); cout << endl;
+      //cout << "====" << endl;
       //cout << "len: " << offset << endl;
       
-      bitmap &= ~(~0 << len);
+      //bitmap &= ~(~0 << len);
+      
       //bitmap <<= offset;
       //bitmap >>= offset;
       /*
@@ -350,7 +374,7 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
       
       //cout << "asda#" << endl;
       int rank = bitSequence[L]->rank1(currH);
-      //cout << "rank: " << rank << endl;
+      //cout << "RANK: " << rank << endl;
       
       //currH++;
       
@@ -359,7 +383,7 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
       //cout << "len: " << lenVec[L + 1] << ", rank: " << (rank - 1) * len << endl;
       currPos = lenVec[L + 1] + (rank - 1) * len;// + (lenVec[L + 2] - lenVec[L + 1] - 1) * (rank - 1);
       
-      currH = bitSequence[L]->getLength();
+      currH = bitSequence[L]->getLength() + rank - 1;
       
       //currH = L + rank;
       //cout << "currPos: " << currPos << endl;

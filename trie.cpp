@@ -90,8 +90,10 @@ void Trie::AddVector(vector<bool> *v)
 
 void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 {
+  //cout << "H: " << height << endl;
+  
     vector<int> pathVector;
-    vector<int> lenVector;
+    vector<int> lenVector(height + 1, 0);
     vector< vector<int> > nextVector(height + 1);
     //pathVector.push_back(0);
     
@@ -116,10 +118,18 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 	  
 	  currHeight = i;
 	  
+	  //cout << currHeight << " " << lastHRegistered << endl;
+	  
+	  //cout << currHeight << " " << pathVector.size() << endl;
+	  
 	  if(currHeight != lastHRegistered)
 	  {
-	      lenVector.push_back(pathVector.size());
-	      lastHRegistered = currHeight;
+	    //cout << pathVector.size() << " " << height << endl;
+	    
+	      //lenVector.push_back(pathVector.size());
+	    lenVector[currHeight] = pathVector.size();  
+	    
+	    lastHRegistered = currHeight;
 	  }
 	  
 	  //cout << "currHeight: " << currHeight << endl;
@@ -264,7 +274,16 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 	      bitclean(nexts[i], j);
 	}
     }
-    
+    /*
+    for(int i = 0; i < nextVector.size(); i++)
+    {
+	for(int j = 0; j < nextVector[i].size(); j++)
+	{
+	    cout << nextVector[i][j];
+	}
+	cout << endl;
+    }
+    */
     for(int i = 0; i < pathN; i++)
       paths[i] = 0;
     
