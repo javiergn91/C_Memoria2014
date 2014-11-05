@@ -1,3 +1,10 @@
+/********************************************************************
+ * Author: Javier González N.
+ * 
+ * Description: main class, there is an terminal-based interface here. 
+ * You can type ./program --help to list all available commands.
+ */
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -29,65 +36,7 @@ double stop_clock() {
 }
 /* end Time meassuring */
 
-void parseTXTFile(string filename)
-{
-    //cout << filename << endl;
-  
-    string line;
-    ifstream myFile(filename.c_str());
-
-    bool bIsTagLine = true;
-    
-    if(myFile.is_open())
-    {
-        while(getline(myFile, line))
-	{
-            if(bIsTagLine)
-            {
-                bIsTagLine = false;
-                continue;
-            }
-
-            istringstream iss(line);
-            string token;
-            string lat = "";
-            string lon = "";
-            int parameterNum = 0;
-            while(getline(iss, token, '\t'))
-            {
-                if(parameterNum == 4)
-                    lat = token;
-                else if(parameterNum == 5)
-                    lon = token;
-
-                parameterNum++;
-            }
-
-            float latValue = (float)atof(lat.c_str());
-            float lonValue = (float)atof(lon.c_str());
-
-           relation2D.AddPair(latValue, lonValue);
-	   //cout << latValue << " " << lonValue << endl;
-        }
-    }
-
-    myFile.close();
-}
-
-void auxFunc(Trie* t, int i1, int i2, int i3, int i4) {
-    vector<bool> v;
-    v.clear();
-    v.push_back(i1);
-    v.push_back(i2);
-    v.push_back(i3);
-    v.push_back(i4);
-    //v.push_back(i5);
-    //v.push_back(i6);
-    //v.push_back(i7);
-    //v.push_back(i8);
-    t->AddVector(&v);
-}
-
+//Given a file named "testfile" with the following format...
 void RunCheckPointTest(QuadCodeStructure* structure, const char* testfile)
 {   
   int n;
@@ -100,8 +49,6 @@ void RunCheckPointTest(QuadCodeStructure* structure, const char* testfile)
     int x, y;
     myFile.read((char*)&x, sizeof(int));
     myFile.read((char*)&y, sizeof(int));
-    //cout << x << " " << y << endl;
-    //structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize);
   }
   
   myFile.close();
@@ -114,32 +61,7 @@ void RunEmptyQueryTest(QuadCodeStructure* structure)
   {    
     cout << x1 << " " << y1 << " " << x2 << " " << y2 << ": ";
     
-    bool bResult = structure->RangeEmptyQuery(Point(x1, y1), Point(x2, y2));
-    /*
-    int n = 0;
-    for(int k = 0; k < (int)relation2D.GetPointVector().size(); k++)
-    {
-	Point p = relation2D.GetPointVector()[k];
-	if(relation2D.GetPointVector()[k].x >= x1 
-	  && relation2D.GetPointVector()[k].x <= x2
-	  && relation2D.GetPointVector()[k].y >= y1
-	  && relation2D.GetPointVector()[k].y <= y2)
-	{
-	  cout << "(" << p.x << ", " << p.y << ") - ";
-	  
-	  n++;
-	}
-    }
-    cout << endl;
-	
-    if(n == 0 && bResult || n > 0 && !bResult)
-      cout << "WRONG!" << endl;
-    else 
-      cout << "OK! => " << ((bResult) ? "Y" : "N") << endl;
-    
-    cout << endl;
-    */
-    cout << ((bResult) ? "Y" : "N") << endl;
+    structure->RangeEmptyQuery(Point(x1, y1), Point(x2, y2));
   }
 }
 
@@ -150,9 +72,6 @@ void PrintAllQuadboxes(int x1, int y1, int x2, int y2, int amount)
   
   cout << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
  
-  //int a;
-  //cin >> a;
-  
   if(x1 == x2 && y1 == y2 || x1 > x2 || y1 > y2)
     return;
   
@@ -175,53 +94,12 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
   
   structure->setQuadCodeSize(relation2D.GetQuadCodeSize());  
   structure->universeSize = relation2D.N;
-  
-  //cout << "U: " << relation2D.universeSize << endl;
-
+ 
   return structure;
 }
 
 int main(int argc, char** argv)
 {
-  	
-  //BitmapWrapper bw;
-  //Utils::CreateQuadCode(3, 2, &bw, 4);
-  //cout << bw.len << endl;
-  //bw.bitmap[0] = (uint)7;
-  /*
-  for(int i = 0; i < bw.len; i++)
-  {
-      cout << bitget(bw.bitmap, i);
-  }
-  cout << endl;
-  
-  return 0;
-  */
-  /*
-  ofstream file("ToyExample.bin", ios::binary);
-  int n = 4;
-  long m = 3;
-  file.write((char*)&n, sizeof(int));
-  file.write((char*)&m, sizeof(long));
-  
-  n = -1; file.write((char*)&n, sizeof(int));
-  n = 1;  file.write((char*)&n, sizeof(int));
-  n = -2; file.write((char*)&n, sizeof(int));
-  //n = 2;  file.write((char*)&n, sizeof(int));
-  //n = 8;  file.write((char*)&n, sizeof(int));
-  n = -3; file.write((char*)&n, sizeof(int));
-  n = 3;  file.write((char*)&n, sizeof(int));
-  //n = 8;  file.write((char*)&n, sizeof(int)); 
-  n = -4; file.write((char*)&n, sizeof(int));
-  n = 1;  file.write((char*)&n, sizeof(int));
-  //n = -5; file.write((char*)&n, sizeof(int));
-  //n = -6; file.write((char*)&n, sizeof(int));
-  //n = 3;  file.write((char*)&n, sizeof(int));
-  //n = -7; file.write((char*)&n, sizeof(int));
-  //n = -8; file.write((char*)&n, sizeof(int));
-  
-  file.close();
-  */
   if(argc <= 1)
   {
     cout << "--help to view the command list" << endl;
@@ -293,7 +171,6 @@ int main(int argc, char** argv)
   
   if(strcmp(argv[1], "-GenerateFalseQueries") == 0)
   {
-    //cout << "sda" << endl;
     srand(time(NULL));
     
     relation2D.ReadBinaryFile(argv[2]);
@@ -304,7 +181,6 @@ int main(int argc, char** argv)
     
     ofstream myFile(argv[3]);
     
-    //myFile << numQueries << endl;
     myFile.write((char*)&numQueries, sizeof(int));
     
     while(numQueries)
@@ -317,7 +193,6 @@ int main(int argc, char** argv)
 	  numQueries--;
 	  myFile.write((char*)&pX, sizeof(int));
 	  myFile.write((char*)&pY, sizeof(int));
-	  //myFile << pX << " " << pY << endl;
 	}
     }
     
@@ -334,20 +209,16 @@ int main(int argc, char** argv)
     
     int numQueries = atoi(argv[4]);
     int numPoints = relation2D.points.size();
-    
-    //cout << numPoints << endl;
-    
+        
     ofstream myFile(argv[3], ios::binary);
     
     myFile.write((char*)&numQueries, sizeof(int));
-    //myFile << numQueries << endl;
     
     while(numQueries--)
     {
         int p = rand() % numPoints;
 	myFile.write((char*)&relation2D.points[p].x, sizeof(int));
 	myFile.write((char*)&relation2D.points[p].y, sizeof(int));
-	//myFile << relation2D.points[p].x << " " << relation2D.points[p].y << endl;
     }
     
     myFile.close();
@@ -357,10 +228,9 @@ int main(int argc, char** argv)
   
   if(strcmp(argv[1], "-GNSCountryFileWriteBin") == 0)
   {
-    parseTXTFile(argv[2]);
- // return 0;
+    Utils::ParseTXTFile(argv[2], relation2D);
+
     float pr = atof(argv[4]);
-    //0.00001f
     relation2D.SetCellSize(pr, pr);
     relation2D.DetermineArrayLimits();    
     
@@ -383,8 +253,7 @@ int main(int argc, char** argv)
   
   if(strcmp(argv[1], "-CreateStructBin") == 0)
   {
-    QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);
-    
+    QuadCodeStructure* structure = GetStructureFromBinFile(argv[2]);    
     structure->Save(argv[3]);
     
     delete structure;    
@@ -402,45 +271,8 @@ int main(int argc, char** argv)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
-   
-    //cout << structure->pathBitmap->len << endl;
-    //cout << structure->pathNextBitmap->bitSeq->getLength() << endl;
-    //cout << structure->pathLenBitmap->bitSeq->getLength() << endl;
-    //int l = atoi(argv[3]);
-    
-    
-    //return 0;
     structure->pathBitmap->PrintBitmap(-1); cout << endl << endl;
     
-    int len = structure->pathBitmap->len;
-    /*
-    for(int i = 0; i < len; i++)
-    {
-	if(structure->pathNextBitmap->bitSeq->access(i))
-	{
-	    cout << "1";
-	}
-	else
-	{
-	    cout << "0";
-	}
-    }
-    cout << endl << endl;
-    */
-    /*
-    for(int i = 0; i < len; i++) 
-    {
-      if(structure->pathLenBitmap->bitSeq->access(i))
-      {
-	cout << "1";
-      }
-      else
-      {
-	 cout << "0";
-      }
-    }
-    cout << endl << endl;
-    */
     delete structure;
   }
  
@@ -464,14 +296,6 @@ int main(int argc, char** argv)
     
     structure->Load(argv[2]);
     
-    /*
-    Trie relation2DTrie;
-    relation2D.ReadBinaryFile(argv[2]);
-    relation2D.FillTriePointsDefined(&relation2DTrie);
-    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
-    relation2DTrie.BuildPathDecomposition(structure);
-    structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
-    */
     RunEmptyQueryTest(structure);
     
     delete structure;   
@@ -534,15 +358,11 @@ int main(int argc, char** argv)
 	int nNode = -(i + 1);
 	printf("%d/%d\n", -nNode, N);
 	
-	//if(nNode < -100)
-	//  return 0;
-	
 	int cnt = 0;
 	tmpArr[cnt++] = nNode;
 	for(int j = 0; j < N; j++)
 	{
 	  int n = j + 1;
-	  //Utils::QuadCode(j, i);
 	  if(structure->CheckPoint(Utils::QuadCode(j, i), structure->quadCodeSize))
 	    tmpArr[cnt++] = n;
 	}
@@ -554,7 +374,6 @@ int main(int argc, char** argv)
       myFile.close();
   }
   
-  //NOT FULLY IMPLEMENTED.
   if(strcmp(argv[1], "-RangeReporting") == 0)
   {
     QuadCodeStructure* structure = new QuadCodeStructure();
@@ -576,120 +395,24 @@ int main(int argc, char** argv)
     structure->Load(argv[2]);
     
     int n = atoi(argv[3]);
-    structure->PrintFirstPoints(n);
+    
+    ofstream myFile(argv[4], ios::binary);
+    
+    vector< pair<int, int> > v = structure->PrintFirstPoints(n);
 
+    myFile.write((char*)&n, sizeof(int));
+    
+    for(int i = 0; i < v.size(); i++)
+    {
+      //cout << v[i].first << " " << v[i].second << endl;
+	myFile.write((char*)&v[i].first, sizeof(int));
+	myFile.write((char*)&v[i].second, sizeof(int));
+    }
+    
+    myFile.close();
+    
     delete structure;       
   }
   
-  
-  
-  /*
-    parseTXTFile("Test/SanMarino.txt");
-    
-    Trie relation2DTrie;
-    QuadCodeStructure* structure = new QuadCodeStructure();
-    
-    relation2D.SetCellSize(0.00001f, 0.00001f);
-    relation2D.DetermineArrayLimits();
-    relation2D.FillTrie(&relation2DTrie);
-    relation2DTrie.CalculateNumberOfLeafsOfEachNode();
-    relation2DTrie.BuildPathDecomposition(structure);
-    
-    structure->setQuadCodeSize(relation2D.GetQuadCodeSize());
-    
-    //cout << "QuadCode Size: " << relation2D.GetQuadCodeSize() << endl;
-    int N = 1 << (relation2D.GetQuadCodeSize() / 2);
-    
-    relation2D.PreprocessPointListUniqueValue();
-    
-    relation2D.WriteBinaryFile("SanMarino.bin");
-    */
-    //relation2D.PrintPointList();
-    
-    //PrintAllQuadboxes(0, 0, N - 1, N - 1, 1);
-    //relation2D.PrintRandomTestCaseCheckPoint(1000);
-    //RunCheckPointTest(structure, true);
-    //RunEmptyQueryTest(structure);
-    
-    
-    //Trie tTrie;
-    //auxFunc(&tTrie, 0, 0, 1, 1);
-    //auxFunc(&tTrie, 0, 1, 0, 1);
-    //auxFunc(&tTrie, 1, 0, 1, 1);
-    //auxFunc(&tTrie, 1, 1, 0, 1);
-    
-    //structure->setQuadCodeSize(4);
-    
-    //tTrie.CalculateNumberOfLeafsOfEachNode();
-    //tTrie.BuildPathDecomposition(structure);
-    
-    //structure->getPathBitmap()->PrintBitmap(-1); cout << endl;
-    //structure->getPathNextBitmap()->PrintBitmap(-1); cout << endl;
-    //structure->getPathLenBitmap()->PrintBitmap(-1); cout << endl;
-    //RunEmptyQueryTest(structure);
-    
-    //cout << structure->getPathNextBitmap()->GetLen() << endl;
-    
-    //structure->GetPoints(0, 0, 16383, 16383);
-    //structure->PrintPointList();
-    
-    /*
-    if(structure->RangeEmptyQuery(Point(0, 0), Point(1, 1)))
-    {
-      cout << "Y" << endl;
-    }
-    else
-    {
-      cout << "N" << endl;
-    }
-    */
-    //delete structure;
-    
-    return 0;
+  return 0;
 }
-
-/*
- *  Trie tTrie;
-
-    auxFunc(&tTrie, 0, 0, 0, 1, 1, 0, 0, 1); 
-    auxFunc(&tTrie, 0, 1, 0, 0, 0, 1, 0, 1);
-    auxFunc(&tTrie, 0, 1, 0, 1, 1, 0, 0, 1);
-    //auxFunc(&tTrie, 0, 0, 1, 1, 1, 1, 0, 1);
-    auxFunc(&tTrie, 1, 0, 1, 0, 1, 1, 0, 1);
-    auxFunc(&tTrie, 1, 0, 1, 1, 0, 1, 0, 1); 
-    //auxFunc(&tTrie, 1, 1, 1, 0, 1, 0, 0, 1);
-    //auxFunc(&tTrie, 1, 1, 1, 1, 0, 1, 0, 1);
-    
-    tTrie.CalculateNumberOfLeafsOfEachNode();
-    tTrie.BuildPathDecomposition(structure);
-
-    string bitCode = argv[1];
-    
-    cout << "SIZE(bytes) = " << structure->GetBytes() << endl;
-    
-    if(structure->CheckBitmap(Utils::CreateBitSequence(bitCode), bitCode.size()))
-    {
-	cout << "YES" << endl;
-    }
-    else
-    {
-	cout << "NO" << endl;
-    }
-    //int initPos = 32;
-    
-    //tTrie.getPathBitmap()->PrintBitmap(initPos);
-    
-    //tTrie.getPathBitmap()->Select(1, 2);
-    //tTrie.getPathBitmap()->Select(0, 1);
-    //tTrie.getPathBitmap()->Rank(1, 5);
-    //tTrie.getPathBitmap()->Rank(0, 3);
-    
-    //cout << "XOR with " << bitCode << endl;
-    
-    //tTrie.getPathBitmap()->XOR(Utils::CreateBitSequence(bitCode), initPos, bitCode.size());
-    
-    
-  
-    outputFile.close();
- */
-	    

@@ -43,7 +43,7 @@ public:
     int pointListSize;
     int* pointList[2];
     
-    void PrintFirstPoints(int n);
+    vector< pair<int, int> > PrintFirstPoints(int n);
     int GetPathBitAt(int position);
     
 private:

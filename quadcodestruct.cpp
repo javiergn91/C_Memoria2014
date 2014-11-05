@@ -239,8 +239,10 @@ void QuadCodeStructure::PrintPointList()
   }
 }
 
-void QuadCodeStructure::PrintFirstPoints(int n)
+vector< pair<int, int> > QuadCodeStructure::PrintFirstPoints(int n)
 {
+  vector< pair<int, int> > v;
+  
   //long m = 832 | (1 << 1);
   //cout << "m: " << m << endl;
   
@@ -371,9 +373,12 @@ void QuadCodeStructure::PrintFirstPoints(int n)
 	b = !b;
       }
       //cout << endl;
-      cout << n2 << " " << n1 << endl;// << n3 << endl;
+      //cout << n2 << " " << n1 << endl;// << n3 << endl;
+      v.push_back(make_pair(n2, n1));
       n--;
   }
+  
+  return v;
 }
 
 int QuadCodeStructure::GetPathBitAt(int position)

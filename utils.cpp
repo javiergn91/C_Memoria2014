@@ -10,6 +10,49 @@
 using namespace cds_utils;
 using namespace std;
 
+void Utils::ParseTXTFile(string filename, Relation2D &relation2D)
+{
+    string line;
+    ifstream myFile(filename.c_str());
+
+    bool bIsTagLine = true;
+    
+    if(myFile.is_open())
+    {
+        while(getline(myFile, line))
+	{
+            if(bIsTagLine)
+            {
+                bIsTagLine = false;
+                continue;
+            }
+
+            istringstream iss(line);
+            string token;
+            string lat = "";
+            string lon = "";
+            int parameterNum = 0;
+            while(getline(iss, token, '\t'))
+            {
+                if(parameterNum == 4)
+                    lat = token;
+                else if(parameterNum == 5)
+                    lon = token;
+
+                parameterNum++;
+            }
+
+            float latValue = (float)atof(lat.c_str());
+            float lonValue = (float)atof(lon.c_str());
+
+           relation2D.AddPair(latValue, lonValue);
+	   //cout << latValue << " " << lonValue << endl;
+        }
+    }
+
+    myFile.close();
+}
+
 unsigned long long Utils::GetDecimalRepresentation(vector<int>* binaryRepresentation)
 {
     unsigned long long multBy = 1;
