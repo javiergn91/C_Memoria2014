@@ -125,8 +125,7 @@ void Relation2D::ReadBinaryFile(const char* filename)
   int N = intAux;
   
   file.read((char*)&intAux, sizeof(int));
-  
-  //int numP = -999;
+  //int numP = -15;
   /*
   while(!file.eof())
   {
@@ -154,7 +153,9 @@ void Relation2D::ReadBinaryFile(const char* filename)
 	//if(numP < 1)
 	//{
 	  points.push_back(Point(intAux - 1, i));
-	  //cout << intAux - 1 << " " << i << endl;
+	  
+	  //if(numP == 0)
+	    //cout << intAux - 1 << " " << i << endl;
 	//}
 	//numP++;
       }

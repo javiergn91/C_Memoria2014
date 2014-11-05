@@ -382,10 +382,25 @@ int main(int argc, char** argv)
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
     
+    int x, y;
+    while(cin >> x >> y)
+    {
+        cout << "(" << x << ", " << y << "): ";
+	if(structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize))
+	{
+	    cout << "Y" << endl;
+	}
+	else
+	{
+	    cout << "N" << endl;
+	}
+    }
+    
+    /*
     int reps = atoi(argv[4]);
     while(reps--)
       RunCheckPointTest(structure, argv[3]);
-    
+    */
     delete structure;
     
     return 0;

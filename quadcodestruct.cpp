@@ -307,7 +307,8 @@ void QuadCodeStructure::GetPoints(int x1, int y1, int x2, int y2)
 
 bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
 {
-  //Utils::PrintLong(bitmap); cout << endl;
+  //cout << "Quadcode: " << len << ", ";
+  //Utils::PrintLong(bitmap); 
   
   int currPos = 1;
   int currH = 0;
@@ -318,7 +319,7 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
   while(1)
   {
       
-    
+      //Utils::PrintLong(bitmap);
       int position = pathVec->XOR(bitmap, currPos, len);
       //cout << "Position: " << position << ", currPos: " << currPos << " Quad: " << len << endl;
       
@@ -332,7 +333,10 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
       //cout << "====" << endl;
       //Utils::PrintLong(bitmap); cout << endl;
       len -= offset;
-      bitmap &= ~(~0 << len);
+      
+      unsigned long zero = 0;
+      unsigned long ones = ~zero;
+      bitmap &= ~(ones << len);
       //Utils::PrintLong(bitmap); cout << endl;
       //cout << "====" << endl;
       //cout << "len: " << offset << endl;

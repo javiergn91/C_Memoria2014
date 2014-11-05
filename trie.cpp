@@ -224,8 +224,8 @@ void Trie::BuildPathDecomposition(QuadCodeStructure* structure)
 	cout << pathVector[i];
     }
     cout << endl;
-    */
-  /*
+   
+  
     for(int i = 0; i < lenVector.size(); i++)
     {
 	cout << lenVector[i] << " ";
