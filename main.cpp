@@ -183,77 +183,6 @@ QuadCodeStructure* GetStructureFromBinFile(const char* filename)
 
 int main(int argc, char** argv)
 {
-  /*
-  ofstream myFile("ToyExample.bin", ios::binary);
-  
-  int n = 10;
-  myFile.write((char*)&n, sizeof(int));
-  
-  unsigned long m = 13;
-  myFile.write((char*)&m, sizeof(unsigned long));
-  
-  
-  n = -1;  myFile.write((char*)&n, sizeof(int));
-  n = 4;  myFile.write((char*)&n, sizeof(int));
-  n = -2;  myFile.write((char*)&n, sizeof(int));
-  n = -3;  myFile.write((char*)&n, sizeof(int));
-  n = 2;  myFile.write((char*)&n, sizeof(int));
-  n = -4;  myFile.write((char*)&n, sizeof(int));
-  n = 2;  myFile.write((char*)&n, sizeof(int));
-  n = -5;  myFile.write((char*)&n, sizeof(int));
-  n = 2;  myFile.write((char*)&n, sizeof(int));
-  n = 10;  myFile.write((char*)&n, sizeof(int));
-  n = -6;  myFile.write((char*)&n, sizeof(int));
-  n = -7;  myFile.write((char*)&n, sizeof(int));
-  n = 4;  myFile.write((char*)&n, sizeof(int));
-  n = 8;  myFile.write((char*)&n, sizeof(int));
-  n = 9;  myFile.write((char*)&n, sizeof(int));
-  n = 10;  myFile.write((char*)&n, sizeof(int));
-  n = -8;  myFile.write((char*)&n, sizeof(int));
-  n = 6;  myFile.write((char*)&n, sizeof(int));
-  n = -9;  myFile.write((char*)&n, sizeof(int));
-  n = 6;  myFile.write((char*)&n, sizeof(int));
-  n = 7;  myFile.write((char*)&n, sizeof(int));
-  n = -10; myFile.write((char*)&n, sizeof(int));
-  n = 3;  myFile.write((char*)&n, sizeof(int));
-  
-  myFile.close();
-  return 0;
-  */
-  /*
-  Trie t;
-  auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 0);
-  auxFunc(&t, 0, 0, 0, 0, 0, 1, 1, 1);
-  auxFunc(&t, 0, 0, 0, 0, 1, 0, 1, 0);
-  auxFunc(&t, 0, 0, 0, 0, 1, 0, 1, 1);
-  auxFunc(&t, 0, 0, 0, 1, 0, 0, 1, 0);
-  auxFunc(&t, 0, 0, 0, 1, 1, 1, 1, 0);
-  auxFunc(&t, 0, 0, 1, 1, 0, 1, 1, 1);
-  auxFunc(&t, 0, 0, 1, 1, 1, 1, 1, 0);
-  auxFunc(&t, 0, 1, 0, 0, 1, 0, 0, 1);
-  auxFunc(&t, 0, 1, 1, 0, 0, 0, 1, 0);
-  auxFunc(&t, 0, 1, 1, 0, 1, 0, 0, 0);
-  auxFunc(&t, 1, 0, 0, 1, 0, 0, 1, 0);
-  auxFunc(&t, 1, 0, 0, 1, 0, 1, 0, 0);
-  auxFunc(&t, 1, 0, 0, 1, 0, 1, 1, 0);
-  
-  QuadCodeStructure* q = new QuadCodeStructure();
-  t.CalculateNumberOfLeafsOfEachNode();
-  t.BuildPathDecomposition(q);
-  
-  if(q->CheckPoint(Utils::QuadCode(10, 6), 8))
-  {
-      cout << "Y" << endl;
-  }
-  else
-  {
-      cout << "N" << endl;
-  }
-  
-  delete q;
-  
-  return 0;
-  */
   if(argc <= 1)
   {
     cout << "--help to view the command list" << endl;
@@ -445,34 +374,6 @@ int main(int argc, char** argv)
     structure->pathBitmap->PrintBitmap(-1); cout << endl << endl;
     
     int len = structure->pathBitmap->len;
-    /*
-    for(int i = 0; i < len; i++)
-    {
-	if(structure->pathNextBitmap->bitSeq->access(i))
-	{
-	    cout << "1";
-	}
-	else
-	{
-	    cout << "0";
-	}
-    }
-    cout << endl << endl;
-    */
-    /*
-    for(int i = 0; i < len; i++) 
-    {
-      if(structure->pathLenBitmap->bitSeq->access(i))
-      {
-	cout << "1";
-      }
-      else
-      {
-	 cout << "0";
-      }
-    }
-    cout << endl << endl;
-    */
     delete structure;
   }
  
@@ -481,43 +382,9 @@ int main(int argc, char** argv)
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
     
-    structure->pathVec->PrintBitmap(-1); cout << endl;
-    
-    for(int i = 0; i < structure->quadCodeSize; i++)
-    {
-      cout << "L" << i << ": ";
-      for(int j = 0; j < structure->bitSequence[i]->getLength(); j++)
-      {
-	  if(structure->bitSequence[i]->access(j))
-	    cout << "1";
-	  else
-	    cout << "0";
-      }
-      cout << endl;
-    }
-    
-    for(int i = 0; i < structure->quadCodeSize; i++)
-    {
-	cout << structure->lenVec[i] << " ";
-    }
-    cout << endl;
-    
-    int x, y;
-    while(cin >> x >> y)
-    {
-    cout << "(" << x << ", " << y << "): ";
-    if(structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize))
-    {
-	cout << "Y" << endl;
-    }
-    else
-    {
-	cout << "N" << endl;
-    }
-    }
-    //int reps = atoi(argv[4]);
-    //while(reps--)
-    //RunCheckPointTest(structure, argv[3]);
+    int reps = atoi(argv[4]);
+    while(reps--)
+      RunCheckPointTest(structure, argv[3]);
     
     delete structure;
     
@@ -558,14 +425,14 @@ int main(int argc, char** argv)
     QuadCodeStructure* structure = new QuadCodeStructure();
     structure->Load(argv[2]);
     
-    cout << "Size(bytes): " << structure->GetBytes() << endl << endl;
-    cout << "----- Size -----" << endl;
-    cout << "Path bitmap size: " << structure->getPathBitmap()->GetSize() << endl;
-    cout << "Next bitmap size: " << structure->getPathNextBitmap()->GetSize() << endl;
-    cout << "Len bitmap size: " << structure->getPathLenBitmap()->GetSize() << endl << endl;
-    cout << "----- Number of (0/1) ------" << endl;
-    cout << "Next bitmap: (" << structure->pathNextBitmap->bitSeq->countZeros() << "/" << structure->pathNextBitmap->bitSeq->countOnes() << ")" << endl;
-    cout << "Len bitmap: (" << structure->pathLenBitmap->bitSeq->countZeros() << "/" << structure->pathLenBitmap->bitSeq->countOnes() << ")" << endl;
+    //cout << "Size(bytes): " << structure->GetBytes() << endl << endl;
+    //cout << "----- Size -----" << endl;
+    //cout << "Path bitmap size: " << structure->getPathBitmap()->GetSize() << endl;
+    //cout << "Next bitmap size: " << structure->getPathNextBitmap()->GetSize() << endl;
+    //cout << "Len bitmap size: " << structure->getPathLenBitmap()->GetSize() << endl << endl;
+    //cout << "----- Number of (0/1) ------" << endl;
+    //cout << "Next bitmap: (" << structure->pathNextBitmap->bitSeq->countZeros() << "/" << structure->pathNextBitmap->bitSeq->countOnes() << ")" << endl;
+    //cout << "Len bitmap: (" << structure->pathLenBitmap->bitSeq->countZeros() << "/" << structure->pathLenBitmap->bitSeq->countOnes() << ")" << endl;
     
     delete structure;
     
@@ -605,7 +472,7 @@ int main(int argc, char** argv)
       for(int i = 0; i < N; i++)
       {	
 	int nNode = -(i + 1);
-	//printf("%d/%d\n", -nNode, N);
+	printf("%d/%d\n", -nNode, N);
 	
 	int cnt = 0;
 	tmpArr[cnt++] = nNode;
@@ -615,7 +482,7 @@ int main(int argc, char** argv)
 	  
 	  if(structure->CheckPoint(Utils::QuadCode(j, i), structure->quadCodeSize))
 	  {
-	    cout << j << " " << i << endl;
+	    //cout << j << " " << i << endl;
 	    tmpArr[cnt++] = n;
 	  }
 	}

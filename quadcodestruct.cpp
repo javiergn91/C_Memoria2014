@@ -400,9 +400,13 @@ int QuadCodeStructure::GetBytes()
   int result = 0;
   
   //cout << pathBitmap->len << endl;
-  result += pathBitmap->GetSize();
-  result += pathNextBitmap->GetSize();
-  result += pathLenBitmap->GetSize();
+  result += pathVec->GetSize();
+  result += quadCodeSize * sizeof(int);
+  
+  for(int i = 0; i < quadCodeSize; i++)
+  {
+      result += bitSequence[i]->getSize();
+  }
   
   return result;
 }
