@@ -192,7 +192,7 @@ int main(int argc, char** argv)
   
   if(strcmp(argv[1], "--help") == 0)
   {
-    cout << "-rbin filename: Read a binary file containing an adjacency list." << endl << endl;
+    cout << "-rbin binfile filename: Read a binary file containing an adjacency list." << endl << endl;
     //cout << "-GNSCountryFileWriteBin datasetfilename filename: Create a binary file with an adjancency list based on a dataset from http://earth-info.nga.mil/gns/html/namefiles.html" << endl <<endl;
     cout << "-CreateTestForCheckPoint binaryfilename number_tests: Create a test cases (random points) for binaryfilename dataset" << endl << endl;
     cout << "-CheckPoint name newfile rep: receive a pair of ints (x and y) until end of file is reached." << endl << endl;
@@ -205,7 +205,34 @@ int main(int argc, char** argv)
     cout << "-GenerateTrueQueries binaryfilename newfile numqueries" << endl << endl;
     cout << "-GenerateFalseQueries binaryfilename newfile numqueries" << endl << endl;
     cout << "-TimeCheckPoint structfile testfile expectedResult reps" << endl << endl;
+    cout << "-NumHeavyPaths structfile filename outfilename" << endl << endl;
     return 0;
+  }
+  
+  if(strcmp(argv[1], "-NumHeavyPaths") == 0)
+  {
+     QuadCodeStructure* structure = new QuadCodeStructure();
+     structure->Load(argv[2]);
+    
+     ifstream myFile(argv[3], ios::binary);
+     ofstream outFile(argv[4]);
+     
+     int n;
+     myFile.read((char*)&n, sizeof(int));
+     
+     while(n--)
+     {
+	int x, y;
+	myFile.read((char*)&x, sizeof(int));
+	myFile.read((char*)&y, sizeof(int));
+	
+	outFile << x << " " << y << " " << structure->GetNumHeavyPaths(Utils::QuadCode(x, y), structure->quadCodeSize) << endl; 
+     }
+     
+     myFile.close();
+     outFile.close();
+     
+     delete structure;
   }
   
   if(strcmp(argv[1], "-TimeCheckPoint") == 0)
@@ -247,7 +274,20 @@ int main(int argc, char** argv)
   if(strcmp(argv[1], "-rbin") == 0)
   {
     relation2D.ReadBinaryFile(argv[2]);
-    relation2D.PrintPointList();
+    //relation2D.PrintPointList();
+    
+    ofstream myFile(argv[3], ios::binary);
+    int n = relation2D.points.size();
+    myFile.write((char*)&n, sizeof(int));
+    //cout << relation2D.points.size() << endl;
+    for(int i = 0; i < relation2D.points.size(); i++)
+    {
+	Point p = relation2D.points[i];
+	myFile.write((char*)&p.x, sizeof(int));
+	myFile.write((char*)&p.y, sizeof(int));
+    }
+    
+    myFile.close();
   
     return 0;
   }

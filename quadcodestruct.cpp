@@ -399,6 +399,48 @@ bool QuadCodeStructure::CheckPoint(unsigned long bitmap, int len)
   return false;
 }
 
+int QuadCodeStructure::GetNumHeavyPaths(unsigned long bitmap, int len)
+{
+  int currPos = 1;
+  int currH = 0;
+  int height = len - 1;  
+  
+  int num = 0;
+  
+  while(1)
+  {
+      num++;
+      int position = pathVec->XOR(bitmap, currPos, len);
+      
+      if(position == -1)
+	return num;
+      
+      int offset = position - currPos;
+      int lastLen = len;
+      
+      len -= offset;
+      
+      unsigned long zero = 0;
+      unsigned long ones = ~zero;
+      bitmap &= ~(ones << len);
+      
+      int L = (height - 1) - (lastLen - (position - currPos) - 1) + 1;
+      
+      if(currH == 0)
+	L = position - 1;
+      int bit = bitSequence[L]->access(currH);
+      
+      if(bit == 0)
+	return num;
+      
+      int rank = bitSequence[L]->rank1(currH);
+      currPos = lenVec[L + 1] + (rank - 1) * len;     
+      currH = bitSequence[L]->getLength() + rank - 1;
+  }
+  
+  return num;
+}
+
 int QuadCodeStructure::GetBytes()
 {
   int result = 0;

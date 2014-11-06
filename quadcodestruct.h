@@ -8,6 +8,8 @@ class QuadCodeStructure
 public:
     QuadCodeStructure();
     
+    int GetNumHeavyPaths(unsigned long bitmap, int len);
+    
     SPBitmap* pathVec;
     int* lenVec;
     BitSequence** bitSequence;
