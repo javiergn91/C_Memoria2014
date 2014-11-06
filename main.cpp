@@ -268,6 +268,8 @@ int main(int argc, char** argv)
     //myFile << numQueries << endl;
     myFile.write((char*)&numQueries, sizeof(int));
     
+    vector< pair<int, int> > v;
+    
     while(numQueries)
     {
         int pX = rand() % N;
@@ -278,7 +280,19 @@ int main(int argc, char** argv)
 	  numQueries--;
 	  myFile.write((char*)&pX, sizeof(int));
 	  myFile.write((char*)&pY, sizeof(int));
-	  //myFile << pX << " " << pY << endl;
+	  v.push_back(make_pair(pX, pY));
+	}
+	else
+	{
+	    if(v.size() > 0)
+	    {
+		int idx = rand() % v.size();
+		pX = v[idx].first;
+		pY = v[idx].second;
+		myFile.write((char*)&pX, sizeof(int));
+		myFile.write((char*)&pY, sizeof(int));
+		numQueries--;
+	    }
 	}
     }
     
@@ -383,18 +397,21 @@ int main(int argc, char** argv)
     structure->Load(argv[2]);
     
     int x, y;
+    int cnt = 0;
     while(cin >> x >> y)
     {
-        cout << "(" << x << ", " << y << "): ";
-	if(structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize))
+        
+	if(!structure->CheckPoint(Utils::QuadCode(x, y), structure->quadCodeSize))
 	{
-	    cout << "Y" << endl;
+	    cout << "(" << x << ", " << y << ")" << endl;
 	}
 	else
 	{
-	    cout << "N" << endl;
+	    cnt++;
 	}
     }
+    
+    cout << "END: " << cnt << endl;
     
     /*
     int reps = atoi(argv[4]);
